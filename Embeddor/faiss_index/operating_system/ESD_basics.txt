@@ -1,0 +1,271 @@
+Chapter 7
+Input/Ouput Circuitry
+Input/Outputcircuits( I/Opads)areintermediatestructuresconnecting
+internal signals from the coreof the integrated circuit to the external
+pins of the chip package .
+7.1 Padframes
+Typically I/O pads are organized into a rectangular Padframe .
+The smallest padframe available for the MOSIS chip fabrication
+(http://www.mosis.org/ ), “TinyChip”, consists of 40 I/O pads, 10 on
+each side. We use such a padframe in our practical exercises.
+The complete documentation of the I/0 pads and resulting “TinyChip”
+padframe for the TSMC0.35 technology is available from
+http://www.mosis.org/cell-libraries/scn035-pads-tiny/mTSMs035P.pdf
+Note that in the TSMC0.35 technology λ= 0.2µ.
+The structure and dimensions of the TinyChip padframe in the
+TSMC0.35 technology are given in Figure 7.1.
+7–1
+
+IC design 7.1. PADFRAMES
+Figure7.1: ThestructureanddimensionsoftheTinyChippadframeintheTSMC0.35
+technology
+A.P.Papli ´nski 7–2 September 24, 2002
+
+IC design 7.1. PADFRAMES
+Note that the total size of the frame is 1.5 ×1.5mm2. The internal
+space available for the core of the integrated circuit is 0.9 ×0.9mm2
+which is equivalent to 4500×4500λ2.
+If we take into account that the size of an average standard cell is
+approximately 120×40λ2thenwecanﬁtintotheTinyChippadframe
+a circuit consisting of approximately 2500standard cells (allowing
+75% of the area for interconnections.)
+The input/output pads are spaced with the pitch of 90 µm = 450 λ.
+The structure and dimensions of an I/O pad in the TSMC0.35
+technology are given in Figure 7.2.
+The size of the 40-pin padframe is 1.5 ×1.5mm, to core area being
+0.9×0.9mm.
+The total size of an I/O padis 300 ×90µm2(1500×450λ2). The pad
+consists of
+•abonding pad — an area to which the bond wire is soldered.
+The wire goes from the bonding pad to a chip pin.
+The size of the bonding pad is 60 ×60µm2(3002λ2).
+•ESD (electrostatic discharge) protecting circuitry consisting of a
+pair of big pMOS, nMOS transistors.
+The ESP circuitry takes twice the area of 78 ×78µm2(3902λ2).
+•Driving and logic circuitry for which the area of 46 ×90µm2
+(230×450λ2) is designated.
+September 24, 2002 7–3 A.P.Papli ´nski
+
+IC design 7.1. PADFRAMES
+Figure 7.2: The structure and dimensions of an I/O pad in the TSMC0.35 technology
+A.P.Papli ´nski 7–4 September 24, 2002
+
+IC design 7.1. PADFRAMES
+An example of the layout of a TinyChip padframe consisting of
+different I/O pads is given in Figure 7.3.
+We note that in addition to different I/O pads, the padframe contains
+four corner pads which close the VDD and GND connections.
+Figure 7.3: The layout of a TinyChip padframe in the TSMC0.35 technology
+September 24, 2002 7–5 A.P.Papli ´nski
+
+IC design 7.2. THE SIMPLEST I/O PAD
+7.2 The simplest I/O pad
+The simplest I/O pad ( PadARef ) available in the TMSC0.35
+technology consists of only
+•Bonding pad, and
+•ESD protection circuitry.
+The schematic of the PadARef pad is given in Figure 7.4.
+Bonding Pad≡
+PADVDD
+GND
+Figure7.4: TheschematicofthesimplestI/Opad,PadARef,anditsequivalentcircuit.
+It is a bidirectional pad with the DATA terminal being connected to the
+bonding pad. The ESD protection circuit consists of a pair of
+equivalent nMOS and pMOS transistors with gates tied up to the
+respective power supply terminals.
+A.P.Papli ´nski 7–6 September 24, 2002
+
+IC design 7.2. THE SIMPLEST I/O PAD
+7.2.1 Fundamentals of the ESD protection
+Electrostatic discharge (ESD) occurs when the charge stored in the
+human body or other devices is discharged to the gate of a MOS
+transistor on contact or by static induction.
+If, for example, the charge on the human body is discharged as a
+current of 10 µA ﬂowing for 1 µs to a gate capacitor of Cg= 0.025pF,
+then the voltage which will build up on the transistor gate is
+V=10·10−6·10−6
+0.025·10−12= 400 V
+Such a voltage destroys MOS transistors, therefore, ESD protection is
+essential for the I/O circuitry.
+A typical solution of the ESD protection problem is to use clamping
+diodes implemented using MOS transistors with gates tied up to either
+GND for nMOS transistors, or to VDD for pMOS transistors as shown
+in Figure 7.4.
+For normal range of input voltages these transistors are in the off state.
+If the input voltage builds up above (or below) a certain level, one of
+the transistor starts to conduct clamping the input voltage at the save
+level.
+These clamping transistors are very big structures (in the example of
+Figure 7.4 L= 2λ, W = 175 λ) consisting of a number of transistors
+connected in parallel, and are able to sustain signiﬁcant current.
+September 24, 2002 7–7 A.P.Papli ´nski
+
+IC design 7.2. THE SIMPLEST I/O PAD
+7.2.2 The layout of the PadARef.
+The layout of the PadARef together with the zoomed in the corner of
+the bonding pad is shown in Figure 7.5.
+Figure 7.5: The layout of the complete PadARef (left) and a section of the corner of
+the bonding pad.
+A.P.Papli ´nski 7–8 September 24, 2002
+
+IC design 7.2. THE SIMPLEST I/O PAD
+The bonding pad consists of three superimposed squares in metal 1,
+metal 2 and metal 3 joined together with respective vias
+(metal1-to-metal2 and metal2-to-metal3), as visible in the zoomed
+corner of the bonding pad shown in Figure 7.5.
+The layout of the left-half of the ESD protection pMOS transistors are
+shown in Figure 7.6.
+D VDDD VDD
+Figure 7.6: The layout of the left-half of the ESD protection pMOS transistors (left),
+the equivalent schematic and simpliﬁed stick diagram.
+The core of the layout contains eight pMOS transistors, 3×944λ2
+each, connected in parallel between the VDD and the signal terminal,
+D.
+September 24, 2002 7–9 A.P.Papli ´nski
+
+IC design 7.2. THE SIMPLEST I/O PAD
+In Figure 7.7 we present a section of the layout with two ESD
+protection pMOS transistors.
+Figure7.7: AsectionofthelayoutwithtwoESDprotectionpMOStransistors. Visible
+layers are: Top — polysilicon, active (p diffusion), metal 1 and contacts. Bottom —
+polysilicon, metal 2 and contacts.
+A single ESD protection transistor has a size of 3×175λ2. It can be
+observed that the metal 2 layer is used to distribute VDD whereas the
+metal 1 layer distributes the signal D. Note the contacts connecting the
+gates and sources of the transistors to VDD and drains to the signal
+terminal D.
+A.P.Papli ´nski 7–10 September 24, 2002
+
+IC design 7.2. THE SIMPLEST I/O PAD
+7.2.3 The Latch-up Problem and its prevention
+Large MOS transistor are susceptible to the latch-up effect.
+In the chip substrate, at the junctions of the p and n material, parasitic
+pnp and npn bipolar transistors are formed as in the following
+cross-sectional view:
+These bipolar transistors form a silicon-controlled rectiﬁer (SRC) with
+positive feedback as in the following circuit model:
+The ﬁnal result of the latch-up is the formation of a short-circuit (a low
+impedance path) between VDD and GND which results in destruction
+of the MOS transistor.
+September 24, 2002 7–11 A.P.Papli ´nski
+
+IC design 7.2. THE SIMPLEST I/O PAD
+Guidelines for Avoiding Latch-Up
+(Quoted from Kang, Leblebici)
+•Usep+guard rings connected to ground around nMOS
+transistors and n+guard rings connected to VDD around pMOS
+transistors to reduce RwandRsuband to capture injected minority
+carriers before they reach the base of the parasitic BJTs.
+•Placesubstrateandwellcontactsascloseaspossibletothesource
+connections of MOS transistors to reduce the values of Rwand
+Rsub.
+•Use minimum area p-wells (in case of twin-tub technology or
+n-type substrate) so that the p-well photocurrent can be
+minimized during transient pulses.
+•Source diffusion regions of pMOS transistors should be placed so
+that they lie along equipotential lines when currents ﬂow between
+VDD and p-wells. In some n-well I/O circuits, wells are
+eliminated by using only nMOS transistors.
+•Avoid the forward biasing of source/drain junctions so as not to
+inject high currents; the use of a lightly doped epitaxial layer on
+top of a heavily doped substrate has the effect of shunting lateral
+currents from the vertical transistor through the low- resistance
+substrate.
+•Lay out n- and p-channel transistors such that all nMOS
+transistors are placed close to GND and pMOS transistors are
+placed close to VDD rails. Also maintain sufﬁcient spacings
+between pMOS and nMOS transistors.
+A.P.Papli ´nski 7–12 September 24, 2002
+
+IC design 7.2. THE SIMPLEST I/O PAD
+Double guard rings.
+The concept of the guard rings is best explained in a sipmliﬁed layout
+shown in Figure 7.8.
+D
+VDD
+GNDn+ ring to VDD
+p+ ring to GNDpMOS
+pMOS
+Figure 7.8: A simpliﬁed layout illustrating double guard rings.
+A pair of pMOS transistors is surrounded by a n+guard ring (green)
+formed from the n diffusion. The n+guard ring is connected to VDD.
+Thep+guard ring formed from p diffusion encircles the whole
+structure and is connected to GND
+September 24, 2002 7–13 A.P.Papli ´nski
+
+IC design 7.2. THE SIMPLEST I/O PAD
+In Figure 7.9 a section of the layout of the PadARef is shown to
+demonstrate the implementation of the double guard rings.
+Figure 7.9: Double guard rings in the PadARef.
+For clarity only the poly, active, p+, n+, and active contacts are shown.
+The external n+guard ring consists of the active layer surrounded by
+the n+ mask (yellow). The internal p+guard ring consists of the active
+layer surrounded by the p+ mask (light green).
+A.P.Papli ´nski 7–14 September 24, 2002
+
+IC design 7.3. OUTPUT PADS
+7.3 Output pads
+The simplest driver for the output pad consists of a pair of inverters
+with large transistors (in addition to the standard ESD protection
+circuitry).
+The driver must be able to supply enough current (must have enough
+driving capability) to achieve satisfactory rise and fall times ( tr, tf) for
+a given capacitive load.
+In addition the driver must meet any required DC characteristics
+regarding the levels of output voltages for a given load type, namely,
+CMOS or TTL.
+September 24, 2002 7–15 A.P.Papli ´nski
+
+IC design 7.4. BIDIRECTIONAL PADS
+7.4 Bidirectional pads
+In the TSMC0.35 pad library there is a bidirectional pad that can also
+be used as a tri-state output pad or an inputpad.
+The schematic of the input section of the bidirectional pad is shown in
+Figure 7.10.
+PadDIn
+DInB
+Figure 7.10: The schematic of the input section of the bidirectional pad from the
+TSMC0.35 pad library.
+The external signal is coming through Padand after double inversion
+is available to the core circuitry as signal DIn.
+Note the ESD protection transistors connected to the input Pad.
+A.P.Papli ´nski 7–16 September 24, 2002
+
+IC design 7.4. BIDIRECTIONAL PADS
+A simliﬁed schematic of the tri-state output section of the
+bidirectional pad is shown in Figure 7.11.
+EN
+ENbP
+NPadDout
+Figure 7.11: A simpliﬁed schematic of the tri-state output section of the bidirectional
+pad from the TSMC0.35 pad library.
+The signal Doutis generated by the chip core circuitry together with
+the enable signal ENand its complement ENb.
+The 3 pairs of MOS transistor generate two signals PandNwhich
+drive the pair of big output transistors forming the output signal Pad
+according to the following truth table:
+ENENbDoutPNPad
+01*10Z
+100110
+101001Pad=
+
+ZifEN = 0
+DoutifEN = 1
+The complete transistor level schematic of the output section of the
+bidirectional pad includes additional three pairs of inverters for
+amplify signals EN, PandN.
+September 24, 2002 7–17 A.P.Papli ´nski
+
+IC design 7.4. BIDIRECTIONAL PADS
+The layout of the nMOS section of the tri-state driver is shown in
+Figure 7.12.
+Figure 7.12: The layout of the nMOS section of the tri-state driver of the output pad.
+The metal 2 layer has been removed for clarity.
+From the left-hand size we identify nMOS transistor belonging to:
+•nMOS transistor belonging to a pair of inverters of the enable
+signal,
+•three groups of parallel connected transistors belonging to the
+circuit generating signals P and N,
+•nMOS transistor belonging to two pairs of inverters amplifying
+signals P, and N.
+A.P.Papli ´nski 7–18 September 24, 2002

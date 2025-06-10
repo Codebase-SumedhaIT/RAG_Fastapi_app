@@ -1,0 +1,43 @@
+[project]
+enable_telemetry = true
+user_env = []
+session_timeout = 3600
+user_session_timeout = 1296000
+cache = false
+allow_origins = ["*"]
+
+[features]
+unsafe_allow_html = false
+latex = false
+user_message_autoscroll = true
+auto_tag_thread = true
+edit_message = true
+
+# Disable file upload button
+[features.spontaneous_file_upload]
+enabled = false
+
+[features.audio]
+sample_rate = 24000
+
+[features.mcp.sse]
+enabled = true
+
+[features.mcp.stdio]
+enabled = true
+allowed_executables = ["npx", "uvx"]
+
+[UI]
+name = "Document Assistant"
+show_header = false
+# Hide Chain of Thought output (thinking tags)
+hide_cot = true
+# Force clean HTML in responses
+sanitize_html = true
+# Set to "full" to completely remove thinking tags
+cot = "hidden"
+# Custom CSS file path
+custom_css = "/custom.css"
+
+[meta]
+generated_by = "2.5.5"

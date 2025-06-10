@@ -1,0 +1,689 @@
+Copyright © 200 7by Lee Eng Han.
+All rights reserved. No portion of this book may be resold without the
+written permission of the author.
+For quer iesabout permission to reproduce selections from this book,
+please send an e -mail to Eng Han at pnr@eda -utilities.com .
+Visit www.eda -utilities.com for information about this book.
+
+iiTable of Contents
+Version 1.0
+1.A Quick Tour from Gate to Layout ............................. 1
+Step 1 Load Library ................................ ................................ ..2
+Step 2 Import Gate Netlist ................................ ........................ 5
+Step 3 Specify Design Constraint ................................ .............. 8
+Step 4Floor Planning ................................ .............................. 10
+Step 5 Power Planning ................................ ............................. 14
+Step 6 Physical Synthesis ................................ ......................... 16
+Step 7 Clock Tree Synthesis ................................ ................... 19
+Step 8 Routing ................................ ................................ ......... 23
+Step 9 Physical Verification ................................ ..................... 26
+Step 10 Post-Layout Verification ................................ ............... 28
+Summary ................................ ................................ .................... 29
+
+Chapter 1
+A Quick Tourfr om Gate sto
+Layout
+If you have no prior knowledge ofPlace and Route (P&R), this chapter
+is designed to bootstrap you into the design of digital layout . Later in the
+book, you will be able to master therest of the materials . This chapter
+covers the essential step s of a Gate to Layout flow.The details of the
+flow will be addressed in subsequent chapters. If you areexperience din
+P&R, you still might want to browse t hrough this chapter to get a feel
+forthe technical aspects covered in the other chapters.
+Thebasic s teps of a Gate to Layout flow include the following :
+Step 1 Load library
+Step 2 Import gate netlist
+Step 3 Specify design constraints
+Step 4 Floor pla nning
+Step 5 Power planning
+Step 6 Physical synthesis
+Step 7 Clock tree synthesis
+Step 8 Routing
+Step 9 Physical verification
+Step 10 Post-layout verification
+
+2Most P&R projects have tomove through these steps. However, the
+steps are not necessarily executed in the order listed .Below are
+examples of thevariation that may occur in the execution of P&R :
+Physical verification (step 9) of the pad ring during floor
+planning (step 4) .
+Physical synthesis (step 6) to assess the feasibility of a floor plan
+(step 4) without power planning (step 5) .
+Some P&R flow perform physical synthesis (step 6) and clock
+tree synthesis (step 7) concurrently.
+Not all thesteps are necessary for a P&R project. D epend ingon the
+logic design requirement sand fabrication proce ss technolo gy, some
+steps can be omitted , orsome steps can be added . For example ,
+Clock tree synthesis might not be necessary at0.6um process
+technology .
+Crosstalk n oise violation analysis and fixing is a must f orlayout
+using 0.18um or smaller process technology .
+Step 1: Load Library
+A P&R library contains two types of information
+technology library
+cell libra ry
+Step1.1 Technology Library
+Wires that satisfy all layout design rules must be put in place by the
+router . The timer engine requires accurate parasitic capacitance sand
+resistance sfor static timing analysis, crosstalk analysis and power
+analysis. Information regarding the layout design rules and capacitance
+
+3look-up table are nested in thetechnology library. The following table
+lists some of theP&R tasks and theircorresponding roles from the
+technology library that are necessary to perform the tasks .
+P&R Task Technology library
+Congestion driven P&R Process design rules.
+Timing driven P&R Routing Parasitics.
+Cross -talk aware P&R Routi ng parasitics with coupling
+capacitance.
+Electro -migration (EM)
+sign-offElectro -migration limit for each metal
+layer.
+Metal and via density
+fillingMetal and via density requirement
+Step 1.2CellLibrary
+The cell library holds both logical and physica l information of thelogic
+cell. The logical information is similar to the contents of a synthesis
+library. Several different type sof information exist and cannot all be
+listedhere. The fo llowing are some of the common contents of the cell
+library.
+celltype (e.g. combinational, sequential, pad, timing model ,etc.)
+Pin-to-Pin delay
+slew for output pin
+capacitive loading on input pin
+leakage and dynamic power consumption
+design rule (e.g. maximum input slew for input pins and
+maximum load for output pins)
+maximum allowable noise for input pins ,and holding resistance
+for output pins
+
+4Thefull physical layout sof the cell saretoo complicated to be used in a
+P&R environment . Hence , the physical information in the cell library
+contains asimplified version of the layout commonly known as an
+“abstract” . An abstract contains the following information :
+cell name
+size of the cell
+allowable orientation
+pin names and their layout geometries
+routing blockages
+process antenna area sfor the pins
+Power and ground pins aretypically excluded from the logical library
+butthey must be included in the abstract library. The following graphic
+(Fig. 1.1) depicts an example of a standard cell abstract.
+Figure 1.1: An example of a stan dard cell ab stract .
+Apopular format for abstract library is Layout Exchange Format (LEF) .
+LEFformat supports both the technology library and the cell library.
+The techn ology defines the name of the layers (e.g. metal layers and via
+layers) that are used in the cell libraries , therefore it is mandatory to load
+the technology library before the cell library.
+
+5Step 1.3 Three Types of Cell Librar ies
+There are three types of cell librar ies:
+Standard cell library
+Pad cell library
+Macro library
+Standard cells must be place din the “core” and on the “cell row ”.
+“Core” and “Cell row” are described inthe lat ter part of this chapter.
+Pads and macros do not have this restriction andcan be placed anywhere
+on the layou t. However, pads are typically placed on the peripherals of
+the layout. All P&R tools have specific functions to automate the
+placement of the pads.
+Step 2 :Import Gate Netlist
+Verilog is the most popular gate-level netlist format .It is also the
+prefer rednetlist format for most P&R tools .Analternat ive is the use of
+theVHDL gate -level netlist.
+After loading the netlist into the P&R tool,thelogic gate i n the design
+bind to their cell master in the cell libraries. This process seems trivial,
+but it is necessary to cater to all situation swhere cells from differen t
+librar ieshave the same cell name.
+Step 2.1Cell and instance
+A cell library is a collection of cells. Standard cell refers to alogic gate.
+I/O1cells are usually called I/O pad s.Hard macro s refer to the layout of
+theIP2. An IP without alayout implem entation is called a soft macro.
+Aninstan cerefers to a cell in the design . Rather th an saying “adding the
+cell AND2D 1to the design”, the common term used is “instantiating the
+cell AND2D 1 to the design”. Every instan ceinthe same design
+hierarchy must have aunique instance name. The following example is
+aninstantiation of a 2 -input AND gate:
+1I/O stands for Input/Output.
+2Intellectual Property.
+
+6AND2D1 inst0 ( .A1(net1), .A2(net2), .Z(net3) );
+The instan cename of the 2 -input AND gate is “inst0”, and the master
+name (or cell name) is AN D2D1.
+Figure 1.2 summaries the definition of cell and instan ce.
+Figure 1. 2: Cell and instan ce.
+Step 2.2Define power and ground connection s
+Refer to the instantiation of a2-input AND gate .
+AN2D1 inst0 ( .A1(net1), .A2(net2), .Z(net3) );
+Gate level netlist do esnottypically include the connection tothepower
+andthe ground supplies . However, t heseconnections have to be defined
+
+7before layout implemen tation .AllP&R tool suse global nets1and
+wildcards to define these connections .For exam ple, the following
+Design Exchange Format ( DEF)statements create two new nets named
+VDD and VSS. It also conne cts all the pins with name “vdd ” to net
+VDD ,and all the pins with name “vss ” to net VSS. The “*” in the
+commands is the wildcard thatmatch estoanyinstance name .
+-VDD (* vdd )
+-VSS (* vss )
+If VDD and VSS are the only two power nets in the design , and a ll the
+power pins of the cell instances are named “vdd”and“vss”, then the se
+two co mmands are sufficient to define allthe power supply connect ions.
+Tie-high and tie -low refer to the connection of the input pins to the
+power supply. Tie-high and tie -low are represented as 1’ b1 and 1’ b0 in
+theVerilog netlist. There are two ways to physically connect tie-high
+and tie -low nets. These nets can eithe r connect directly to the powe rand
+the ground net s, or connect using tie -high and tie -low cells. Whichever
+the case, it is the design of the pad library and the standard cell library
+thatdetermine stheappropriate type of connection.
+Step 2.3Instance name and hierarchical instance name
+A design can contain many hierarchical levels . The design name is the
+same as thetop-level design hierarchy name . An instantiation can be a
+cell or a sub -hierarchy .
+1The net is global because it can be reference directly by its name at any desi gn
+hierarchy without the use of the full hierarchical name.
+Insertion of Tie Cell into the design
+Can you suggest the advantages of inserting thetie cell sinto the
+design after placing the instance s,rather than inserting them into the
+design during logic synthesis?
+
+8A netlist can instantiate the same sub -hierarchy several times. Howe ver,
+in order to allow the layout of the sub -hierarchy to be implemented
+differently for each instance , the sub-hierarchy must be “uniquified ”by
+duplicating the sub -hierarchy with different hierarchy cellname s.Figure
+1.3illustrates the “uniquification” process . Note that instance names are
+preserved during uniquification.
+Figure 1. 3: Uniquify the netlist .
+A full hierarchical name is required to refer to a particular instan ce.
+Referagain to Figure 1.3 . Assum ethere is a flip -flop with instance name
+“U1” in “Adder32” .As “Adder32” is instantiated four times before
+uniquification , we can refer to that flip -flop in the four instan ces of
+“Adder32” as Inst0/U1, Inst1/U1, Inst2/U1 and Inst3/U1. As instance
+names are preserved during uniquification, the instance names of the
+four flip -flopsremain unchanged after uniquification.
+Step 3 :Specify Design Constraint
+P&R is a constraint -driven process. In th e absence of constraint s,P&R
+optim ization is purely congestion -driven. A timing constraint is an
+important part of thedesign constraint. Timing const raintsspecif ythe
+timing goals of the design .In order to perform timing -driven placement
+or physical synthesis ,timing constraints must be available . Timing
+constraints are most likely to be specified in SDC format.
+
+9The timing constraints should be specified atthe top -level of the design.
+It is necessary to specify a complete top -level timing constraint fora
+timing -driven flow .Any unconst rainedtiming pathswill not be
+optimized for timing performance .Hence , unconstrain ed paths might be
+implement edwith logic sthat are very slow or with extraordinarily large
+slew.
+On the other hand, over-constraining the timing requirement is
+undesirable .An over -constrained design can result in an implementation
+that is unnece ssarilylarge in area and the P&R will possibly consume a
+much longer run-time.
+In addition to timing constraint s, there are constraints not related to
+timing performance .There is no standardized name for this type of
+constraint, soit will be termed a“non -timing constraint s” in this book .
+There are many different types of n on-timing c onstraints. Thefollowing
+listdescribes some of them .
+design rules which include maximum fan -out, maximum slew
+and maximum capacitance loading
+scan-chain re -ordering andre-partitioning
+selective hierarchy flatten ing
+buffering of inputs and outputs with user -specified cell s
+identif ication of cells that the tool cannot modify or can only
+resize
+identif ication of nets that must be preserved during logic
+optimization
+disallo w the use of certain cells
+assign higher priority to certain nets so as to achieve shorte r
+wiring length
+restriction in the area that certain cells can be placed
+among others
+Non-timin g constr aints can be employed to ensure the physical
+implementation meet sthe design requirements, improvement of layout
+quality and turn -around time , as well as to work -around the limit ations
+of the P&R tools.
+
+10Step 4: Floor Planning
+Floor planning is the first step of physical layout implementation. A
+floor plan should include the following decisions :
+sizeofthelayout
+core area
+placement of I/O pads and I /O pins
+placement of the hard macros
+A floor plan should include the placement of allthepads (orpins) and
+the hard macros .However, the standard cells are not placed yet andno
+routing is performed at this stage1.
+Step 4.1 Size of thelayout
+The first step in floor planning is to define the outline of the layout . If
+the layout is rectangular , only th elength and thewidth of the layout are
+required .More co -ordinates are needed to define the outline of a
+rectilinear layout ,such as an L-shape layout. Most of the P&R tools do
+not alter the size of thelayout specified by the user .
+Step 4.2 Core Area
+The core area i s usually defined by specifying the distance between the
+edge of the layout andthe core, as shown in Figure 1. 4.
+1It is possible to pre -place some standard cells, and also to pre -route wires at this stage
+of the flow. It is also possible that smaller macros are left unplaced.
+
+11
+Figure 1. 4:Defin ition of the core area .
+All standard cells must be plac ed in the core area. I/O pads and macros
+do not have this restriction although it is common to place macros in the
+core area. The area outside the core can be used to place the I/O pads,
+the I/O pins, and the core power rings.
+Standard cells are placed in rows, similar to placing books on a book
+shelf. The rows are called “cell row s”and are drawn inside the core area .
+Allcell rows have the same height. There are three common ways to
+arrange the cell rows (Figure 1.5 ).
+The most common approach for layout w ith more than three metal
+layers is to flip every other cell rowwhich does not leave a gap between
+thecellrows.
+The second configurat ion is to flip every other cell row, but leave a gap
+between every two cell rows. The purp ose of thegaps isto allocat e more
+resource sfortheinter-connect routing s.
+The last configuration is to leave a gap between every cell row, and not
+flip the cellrows. This configuration is useful when only two or three
+metal la yers are available for routing.
+
+12
+Figure 1. 5: Three types of cell row configuration .
+The “slanting lines” on the right of the cell rows in Figure 1. 5denote the
+orientation of the cell rows. Modern P&R tools will fill the core area
+with cell rows autom atically. Some P&R tools require the user to
+specify the areas in the core where thecell-row should be created.
+Arrangement of the cell rows
+What is the reason for flipping the cell rows?
+When you need to leave a gap in between the cell rows, how do you
+determine th e height of the gap ?
+
+13If all the standard cells are in the same power domain, then only one
+core area is required .In a multiple core power P&R flow, more than one
+core area must be defined , and every core area must associate itself with
+a power domain.
+Step 4.3Placements of IO Pads and IO Pins Geometries
+Fora chip -level layout, the next step is to plac e the IO pads. The P&R
+tool can f ill the gaps between the pads with pad filler cells and corner
+cells. For a block -level layout, the user need sto define the locat ionand
+geometries (size and metal layer) of every IO pin.
+Step 4.4Placements of the Hard Macros
+The floor plan is complete i f the design does not contain any hard
+macro1. Otherwise, the next step is to place the hard macros. Placing the
+hard macros may notbe a simple task. A good macro placement has the
+following qualities :
+provides a compact layout
+does not cause routing cong estion
+does not make timing closure difficul t
+allow srobust pow er routing between the power pad sand the
+macros
+Thebiggest challenge in placing the macros is in assessing the quality of
+the floor plan , which cannot be achieved without executing the rest of
+the flow . Thus, floor planning is an iterative and time consuming
+process. The trick inperforming floor planning is to shor ten the turn -
+around time of the iterations , and to reduce the number of iteration s.The
+follow ing figure (Figure 1.6) depicts a simple floor plan of a chip -level
+layout with only one macro .
+1Examples of hard macro are me mory, analog layout or a complete layo ut of a CPU.
+Basically, any instant that is not a standard cell is a hard macro !
+
+14
+Figure 1. 6:Afloor plan with one macro and I/O pads
+Step 5: Power Planning
+All connections to the power and ground nets are routed during power
+planning. The only exception isthetie-high and the tie -low nets. Most
+P&R tools use a dedicated router to route the power nets. Allpower
+routings created by the power router are considered pre -routes, and are
+not modified by the detailed router when thesignal netsare ro uted.
+The key consideration for power planning is:
+anacceptable IR -drop from the power p ads to all power pins
+meet ingelectro -migration requirement s
+does notresult in routing congestion
+compact layout
+A power plan consists of several types of power stru cture .Figure 1. 7
+illustrates a typical sequence to construct the power structure s.
+1.core power rings are routed first
+2.core power pads are connected to the cor e power rings
+
+153.thepower rings are added a round the macros where necessa ry
+4.vertical stripes and horizontal stripes are added to reduce the IR -
+drop at the power rails of the standard cells and the macros
+5.the power pins of the hard macros are tapped to the c ore rings or
+the power stripes
+6.if tie-high and tie -low cells are not use d, the tie -high and tie -low
+inputs to the hard macros and IO pads are tapped to the power
+structure s
+7.the power rails for the standard cell are added to the power plan
+The power rails can tap the power from the core power rings, thepower
+stripes and themacro power rings.
+Figure 1. 7: Steps in building a power plan .
+
+16Step 6: Physical Synthesis
+Physical synthesis refers to the placement of the standard cells and the
+optimization of the layout base o n the design constraints.
+Physical synthesis consists of a few typical phases :
+global placement
+global routing
+physical optimization
+detailed placement
+further physical optimization
+After physical synthesis, all standard cells are placed on the cell rows .
+The placement should be legalized, which means that the standard cells
+are on the cell row, on theplacement grid, non -overlapping ,and the
+power pins of the standard cells are properly connected. The placement
+should be routable, meet ingthetiming goal, andsatisfy theplacement
+constraints specified by the user.
+In order to meet thetiming goal, the tool might need tooptimize the
+netlist. Different tool shave different capabilit iesgiven the type of
+optimization it can perform. The u ser can also config ure the type of
+optimization the tool can utilize . Some ofoptimizati on techniques a
+P&R tool canemploy arelisted below. The optimization techniques are
+Priorities of the power structures
+In the 7 steps illustrated above to build the power stru ctures, can you
+suggest a reason why “step 2” should not be executed last?
+If you are to use both vertical and horizontal stripes, what are the
+considerations to d ecide which one sh ould be added to the power
+plan first?
+
+17listed in anincreasing order of structural change relative to the original
+netlist .
+gate sizing
+buffer insertion and removal
+pin swapping
+cloning
+logic restructuring
+architecture retargeting
+Physical synthesis becomes essential when the IC industry started to
+adopt process technologies that are 0.25um and smaller. The following
+table summaries the evolu tion of theplacement methodology .
+Process Technology Physical Optimization Techniques
+0.6um and larger Placement is congestion driven. Manual
+insertion of buffers to long nets after routing .
+0.35um Placement is timing driven. Physical
+optimization is r estricted to gate sizing and
+buffer insertion.
+0.25um and smaller Physical synthesis is fully adopted.
+Table 1. 1: Evolu tion of plac ement methodology with process technology.
+Most P&R flows will not attempt to restructure the lo gic in the c lock
+network. Some P&R tools have the ability to size the cells in the clock
+network during physical synthesis.
+
+18To achieve agood estimation o fthe inter -connect parasitics, global
+routing is performed during phys ical synthesis. It is assumed that
+detailed routing will match global routing closely so that physical
+synthesis is optimizing on thereal critical paths .
+Mixing clock and data
+A clock network can contain comb inatorial logic cell s.Clock signal s
+canalso be used as data signal s. The first example below is a glitch -
+less multiplexe rwhere the output clock is one of the two input
+clocks . This example illus trates that there can be combinatorial gates
+in the clock n etwork.
+The second example shows multiplexing of a clock signa l with data
+signals. The third example shows the uses of the clock to select the
+output of a multiplexe r.
+As physical synthesis preserves theclock network, the combinatorial
+gates in the c lock network may not besized or buffered
+appropriately . Thus ,a huge negative slack might be expected after
+physical synthesis if no additional steps are taken toavoid these
+issues.
+
+19The r outing congestion map can be derived from global routing. Any
+routing congestion at this stage s hould be resolved as much as possible
+by re iterating the placement with additional control s, or by improving
+the floor plan and power plan.
+Before proceed ing further to the layout de sign, the layout is now ready
+toperform IR -drop analysis. Two main object ives of IR -drop analysis
+areto ensure
+allpower pins of the hard macro sandthestandard cells are
+connected to the power structure s
+thevoltage drops in the power structures are within acceptable
+limit.
+Step 7: Clock Tree Synthesis
+After all the standard cells are placed, the clock nets are buffered. The
+following list provides the additional requirement sfor synthesizing
+clock trees when compared to thebuffering ofthe high fan -outnon-
+clock nets:
+clock latency
+clock skew
+restriction on t he type of buff er and inverter theclock tree can
+use
+stricter signal slew requirement son the clock nets
+Clock latency is the delay of the clock signal from the clock source to
+the clock pin. Clock skew is the differ ence between the clock latencies
+and the two clock pi ns.
+It is straight forward to specify the clock tree requirement sto the P&R
+tool.If the clock tree starts from one source and fan s-out only to the
+clock pins of the flip -flops and the macros , the clock tree meets the
+requirements of the P&R tool .Unfortu nately, this is not always the case .
+For example, the clock tree schematic shown below has the following
+additional requirements :
+
+20the clock latencies of flip -flops div_reg* do not have to be
+balanced with the clock latencies of theother flip -flops
+asmall clock skews between the flip -flops div_reg*
+asmall clock skews for the rest of the flip -flops in both
+functional mode and test mode
+optimize forshorter clock latenc iesduring functional mode
+Figure 1. 8:Clock tree schemat ics example
+Strategy for clock tree synthesis
+The strategy to synthesi zethe clock tree is highly dependent on the
+features of the P&R tool you are using.
+As a P&R engineers, how do you find out all the requirements of the
+clock tree?
+
+21It is not uncommon for the clock tree synthesis algorithm to generate a
+poor clock tree when c omplicated blockages exist in the layout. The
+following is an example of a poor clock tree :
+Additional routing requirement s are often applied on the cl ock ne ts.In
+order to reduce noise coupling , the route spacing to the clock net can be
+doubled .Shielding the clock net is another option to reduce noise
+coupling. For a clock with very high clock frequency , it may be
+necessary tousemultiple -via on the clock routing to meet theelectro -
+migration rule s.
+Before clock trees are inserted, the tool use sideal clock latencies and
+ideal clock skews for timing analysis .After the clock trees are
+synth esized, the tool should usethe actual clock latencies and clock
+skew sforthetiming analysis.
+Poor Clock Tree
+Here is an example where t he algorithm for theclock t ree synthesis
+cannot efficiently bring the clock signal from the clock source to the
+clock pins . This is due to the presence of many large blockages . The
+clock late ncy is unnecessar ilylong. Poor slews in the clock nets
+resulted in alarge clock skew .
+Canyou suggest anyapproaches to alleviate this problem?
+
+22It is now possible to analyze and fix hold violation susing computed
+clock latencies associated with every clock end -point after c lock tree
+synthesis . Hold violation sshould be fixed first in“best corner”
+operating condi tion,and then in the “worst corner” operating condition.
+Current P&R tool sfix hold violations by adding delay to the data path .
+The tool will not attempt to make c hanges to the clock p ath. It is
+advisable to analyze the buffers added by the tool for hold fixing . If the
+result is not satisfactory, clock trees might need to be re -synthesized
+using different approaches.
+Ideal Clock Latency
+The default ideal clock latency is 0. How about the ideal clock
+latency of a generated clock? The divided clock “CLOCK” in the
+schematic below has the following specification :
+create_generated_clock –name CLOCK \
+–divide_by 2 \
+-source [get_pins clk_div_reg/CK] \
+[get_pins clk_div_reg/Q]
+What should be the clock latency of “CLOCK ”? Also, what is the
+frequency of the“CLOCK ”; should it be half the frequency of
+“CLOCK_A ”or halve the frequency of “CLOCK_B ”?
+
+23Step 8: Routing
+Theprocess of routing the non -power signals is called “detailed routing”.
+After clock tree synthesis, empty space still exists in the cell rows.
+These empty spaces in between the standard cells will eventually be
+filled by filler cells. Fillers can be insert ed either before or after detailed
+routing . If the fillers contain metal routing other than the power rail,
+then the fillers should be inserted before routing. Otherwise, it is best to
+add the fillers after routing. Figure 1. 9shows the results before and after
+filler cell insertion .
+Filler cells for a standard celllibrary
+Filler cells come in different width s. The width of thesmallest filler
+cell is the size of the placement grid . The widths of all the standard
+cells are multi plesof the placement grid size.
+Do you know the purpose sof the filler cells?
+The filler cells usually have width sthat are given as 1x, 2x, 4x, 8x,
+16x, 64x, etc. The next bigger filler cell always has its width
+doubled. Do you know why?
+Why is it better to insert the filler cell after detailed routing?
+Timing nightmare after clock tree synthesis !
+Imagine this scenario .The timing requirement of a design is met
+after thephysi cal synthesis step .Clock tree synthesis is then
+performed and all th e clock trees me etthe skew and latency
+specification s. However, static timing analysis (STA) shows that
+there are many timing paths with very poor timing slack.
+Can you suggest a few reasons for the poor timing slack?
+
+24
+Figure 1. 9: Inserting thefiller cells
+Routing is performed throughout P&R flow. Powers are routed during
+power planning by a dedicated route r.During physical synthesis, the
+signal nets are“globally routed” using the global router .The routings
+are called global routes . Global routes allow the P&R tool to resolve
+routing congestion and estima tetherouting parasitics .After the clock
+trees ar e synthesized, the clock trunks are routed with actual metal
+geometries . This occurs before the clock trees are re -optimized. This is
+then follow edby detailed routing.
+Detailed routing is carried out in stages. The detailed routing s tages are
+different in various P&R tools ,but the methodology used for detailed
+routing issimilar .The stages are outlined below.
+1.Track routing :Global routing uses a very coarse routing grid.
+Track routing assigns the global routes to the actual routing
+tracks.
+
+252.Detailed r outingwith only met alone:Connections between cells
+that are placed side -by-side are possible candidates .
+3.Connecting the rest of the signal nets by following the result of
+track routing :The aim is to connect all the routings so that there
+arenone“Open”. T he routings can be full of routing violation s
+(e.g. short) and design rule violations (e.g. metal to metal
+spacing violation s).
+4.Resolve routing violation siteratively :The detailed router div ides
+the layout into regions and work swithin each region to clea n up
+the routing violations. This process iterates with aregion of
+different sizes and aspect ratios . The iterative process continues
+until there areno more routing violation sor the limit on the
+number of iteration shas been reached .
+5.Iterating between f ixing antenna violations and cleaning up
+routing violations :New routing violations can be introduced
+during the process of fixing the antenna violations.
+6.Optimizing the detailed routes :The types of optimization to be
+performed willdepend on theuser’ s s pecification sand the tool’ s
+capability. The o ptimization can include minimizing wire jog
+andswitching of routing layer s,or even out the spacing between
+the routes, and replacing single via with redundant via.
+All P&R tools have the functionality to pe rform cell -level DR C and
+LVS on a routed design. However, it is mandatory to perform a full -
+layer (or sometime scalled full -GDS) physical ver ification .
+How about the flows for cross -talk reliability,
+electro -migration, p ower sign -off and yield
+enhancement?
+These topics are beyond the scope of this chapter. The methodology
+toaddress each of these concepts is rooted in the complete P&R
+flow. They will be discussed in the later chapters.
+
+26Step 9: Physical Verification
+After the layout is routed , a GDS containin g the design layout canbe
+generated from the P&R tool. Ideally, the GDS is ready to be sent for
+mask making and fabrication. However, any mistakes made during the
+P&R flow will be left undetected. Physical verification is an
+independent process of verifyi ng the integrity of the layout.
+There are three types ofphysical verification :
+Design Rule Check (DRC)
+Layout Versus Schematic (LVS)
+Electrical Rule Check (ERC)
+DRC checks the layout geometries for the manufacturing process .A
+full DRC deck contains hundreds of DRC rules. The following are some
+common DRC rules :
+spacing between geometries
+minimum and maximum width of the geometries
+density of the metal s, the poly and the diffusion
+antenna violation
+viareliability
+LVS checks the layout for correct conne ctivity between the devices in
+the circuit . Acircuit device can be a transistor, a resistor, a capacitor, a
+diode, among others . During LVS verification, circuit device s and the
+inter-connections are extracted from the layout and save das a layout
+netlis t. This typically exists in a format similar to that of the spice
+format. Thelayout netlist is compared with thepost-layout design netlist
+(usually in Verilog format).
+ERC identifies errors in layout that are related to electrical connections.
+Examples a re latch -up protection, floating substrate , floating well, and
+bad device connection s.Currently, the ERC rules are typica lly
+embedded in the DRC and LVS rules.
+
+27At0.35um or larger technology ,it is possible for the layout
+implementation tomeet timing performance without physical synthesis
+and clock tree s ynthesis. In this case, thepre-layout netlist is the same as
+the post-layout netlist. However, P&R with 0.35um or smaller
+technology definitely requires physical synthesis and clock tree
+synthesis for timing closure. Hence, t he P&R tool has to make
+modificati onsto the netlist and output a post-layout netlist. As LVS
+performs the comparison betwe enthepost-layout netlist and the layout ,
+it does not verify that the post -layout netlist is functionally equivalent to
+the pre -layout netlist. Equivalent checker tool sareneeded to guarantee
+thepost-layout netlist has the same functionality as the pre -layout netlist.
+The complete physical verifica tion flow is shown in Figure 1. 10.
+Figure 1. 10: Physical verification flow.
+Why is the cell level DRC and LVS by the
+P&R tool insufficient?
+Cell level DRC and LVS are performed by the P&R tool. Can you
+suggest some reasons why physical verification c an detect DRC and
+LVS violations that are not detected by the P&R tool?
+
+28Step 10: Post -Layout Verification
+Sign-off tools are tools that are used to perform the final check on the
+design. Due to run -time and memory usage consider ation s,P&R tools
+have to use simplified models during parasitics extraction ,static timing
+analysis and other types of analys es.Hence, there is a need for sign -off
+tools.
+On average , the parasitics extraction result from a P&R tool should be
+within a fe w percent age points from a sign -off parasitics extraction tool.
+However, so me nets canexhibit alarge difference ,in excess of 100%.
+Similarly, t hestatic timing engine in theP&R tool and the sign -offstatic
+timing tool might show differences with respec t todesign constraint s,
+delay calculation or trac ing of the timing path.
+The sign -off tools may find violations the P&R tool misses. It may be
+necessary to correlate the interpretation of the design constraints by the
+P&R tool and the sign -off tools earl y in the P&R project. It is common
+practice to over -const rain the design by a small margin so that
+differences among the tools do not pose any concerns .
+The result of parasitics extraction is usually stored in SPEF or SP DF
+format. The extracted parasitics can be back -annotated into the sign -off
+static timing analyzer (STA) tool . STA performs delay calculation sand
+verifies the timing performance. The STA tool can generate astandard
+delay format (SDF) file that is used by alogic simulator for post -layout
+sign-off simulation. The post -layout verification flow is shown in Figure
+1.11.
+Figure 1. 11: Post -layout verification flow
+Ifthetiming goal is not achieved , then a possible attempt to close the
+timingis initiated. Acorrect ion to the layout by manual gate sizing and
+buffer insertion isstandard practice to achieve the timing goal .
+
+29Subsequently, the post-layout verification is repeated .Manual
+modification on the layout is too tedious with many timin gviolations.
+Therefore, it is also possible to back -annotate SPEF or SPF into the
+P&R tool, and let the tool optimize the layout to meet thetiming
+requirement .Care should be taken to ensure that the P&R tool does not
+create new timing violations while f ixing existing timing violations.
+Summary
+This chapter provides a brief overview of a Gate -to-GDS flow. The flow
+consists of 10 steps. A technology library, cell libraries and gate netlist
+are read into the P&R tool. Design c onstrain ts are then imported into the
+P&R tool. The first step in physical layout implementation starts with
+floor plan ning. This is followed by power planning, physical synthesis,
+clock tree synthesis and detailed routing. After detailed routing, the
+implementation of the layout is completed. Before the layout istaped-
+out, it has to be verified by the sign -off flow, which includes physical
+verification and post -layout verification.
+This chapter outlines the tasks performed in a P&R project. It does not
+cover the techniques and the details of each task. In the following
+chapters, we will study the specifics of these tasks .
+STA and logic simulation.
+Can you suggest possible reasons for the following conditions?
+STA passes but the simulation fails onthe same logic path
+Simulation pass esbut STA fails on the same logic path

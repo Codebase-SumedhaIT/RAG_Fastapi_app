@@ -1,0 +1,1823 @@
+Cell-Based IC Physical Design and Verification
+- SOC Encounter
+CIC 2004/07 ±i¦~µ¾
+
+2
+Class Schedule
+Day1
+¾Design Flow Over View
+¾Prepare Data
+¾Getting Started
+¾Importing Design
+¾Specify Floorplan
+¾Power Planning
+¾Placement
+¾Synthesize Clock TreeDay2
+¾Timing Analysis
+¾Trial Route
+¾Power Analysis
+¾SRoute
+¾NanoRoute
+¾Fill Filler
+¾Output Data
+¾DRC
+¾LVS
+¾extraction/nanosim
+
+3
+Chapter1
+Cell-Based Physical Design –SOC Encounter 3.2
+
+4
+Cell-Based Design Flow
+synthesis
+Routed 
+designAdd LVS/Nanosim text
+Replace layoutGDSIIDRC  LVSPost layout simulationTape out
+Gate level
+netlistVerilog
+VHDL
+Place & Route
+
+5
+SOC Encounter P&R flow
+
+
+6
+IO, P/G Placement
+
+
+7
+Specify Floorplan
+Hight
+Width
+
+8
+Amoeba Placement
+
+
+9
+Scan Chain Reorder
+
+
+10
+Power Planning
+
+
+11
+Clock Tree Synthesis
+
+
+12
+Power Analysis
+
+
+13
+Add Filler
+
+
+14
+Power Route
+
+
+15
+Routing
+
+
+16
+Prepare Data
+Gate-Level netlist (verilog)
+Physical Library (LEF)
+Timing Library (LIB)
+Timing constraints (sdc)
+IO constraint
+
+17
+Preparing Data : gate-level netlist
+If designing a chip , IO pads , power pads and Corner
+pads should be added before the netlist is imported.
+Make sure that there is no“assign ”statement and no
+“*cell* ”cell name in the netlist.
+¾Use the synthesis command below to remove assign statement.
+set_boundary_optimization
+¾Use the synthesis commands below to remove “*cell* ”cell name 
+define_name_rules name_rule –map {{ \\*cell\\* cell”}}
+change_names –hierarchy –output name_rule
+
+18
+Prepare Data : LEF
+-- Process Technology
+Layers Design Rule Parasitic
+POLY
+Metal1
+Metal2Contact
+Via1Net width
+Net spacing
+AreaEnclosure
+Wide metal
+slot Antenna
+Current densityResistance
+Capacitance
+
+19
+Prepare Data: LEF
+-- APR technology
+Unit
+Site
+Routing pitch
+Default direction
+Via generate
+Via stack
+
+20
+Prepare Data: LEF
+-- APR technology : SITE
+¾The Placement site give the placement grid of a family of 
+macros
+a site a row
+
+21
+Row Based PR
+VDD
+VSS
+VDD
+VSS
+
+22
+Prepare Data: LEF
+-- APR technology : 
+routing pitch , default direction
+metal2 routing pitchmetal1 routing pitch
+Horizontal 
+routingVertical 
+routing
+Metal1
+Metal3
+Metal5Metal2
+Metal4
+Metal6
+
+23
+Prepare Data: LEF
+-- APR technology : via generate
+To connect wide metal , create a via array to 
+reduce via resistance
+Defines formulas for generating via arrays
+Layer Metal1
+Direction HORIZONTALOVERHANG 0.2
+Layer Metal2
+Direction VERTICALOVERHANG 0.2
+Layer Via1
+RECT –0.14 –0.14 0.14 0.14SPACING 0.56 BY 0.56
+
+24
+Prepare Data: LEF
+-- APR technology : via stack
+Without via stackWith via stack
+Higher density routing
+Easier usage of upper layer
+Must Follow minimum area rule
+
+25
+Prepare Data: LEF
+-- APR technology : Physical Macros
+Define physical data for
+¾Standard cells
+¾I/O pads
+¾Memories
+¾other hard macros
+describe abstract shape
+¾Size
+¾Class
+¾Pins
+¾Obstructions
+
+26
+Prepare Data: LEF
+-- APR technology : Physical Macros cont.
+VDD
+VSS
+B
+AYMACRO ADD1
+CLASS CORE ;FOREIGN ADD1 0.0 0.0 ;
+ORIGEN 0.0 0.0 ;
+LEQ ADD ;
+SIZE 19.8 BY 6.4 ;
+SYMMETRY x y ;
+SITE coresite
+PIN A
+DIRECTION INPUT ;
+PORT
+LAYER Metal1 ;
+RECT 19.2 8.2 19.5 10.3
+……
+END
+END A
+OBS
+……
+END
+END ADD1
+
+27
+Prepare Data: LIB
+Operating condition
+¾slow, fast, typical
+Pin type
+¾input/output/inout
+¾function
+¾data/clock
+¾capacitance
+Path delay
+Timing constraint
+¾setup, hold, mpwh, mpwl, recovery
+
+28
+Prepare Data: Timing constraint
+Create clock
+Input delay
+Output delay
+Input drive
+Output loading
+
+29
+Prepare Data: Timing constraint
+-- Create Clock
+create_clock [-name clock_name]
+-period period_value
+[-waveform edge_list][clock_source_list]
+20
+10CHIPI_CLK
+create_clock –name CLK1 –period 20 –waveform {0 10} [get_ports I_CLK]
+
+30
+Prepare Data: Timing constraint
+-- create_generated_clock
+create_generated_clock -add  -master_clock
+[-name clock_name]
+-source master_clock_root
+[-multiply_by mult]
+[-divide_by div]
+[-duty_cycle dc]
+[-invert]
+[-edges edge_list]
+[-edge_shift edge_shift_list]
+clock_root_list
+create_generated_clock –name CLK2 –source [get_ports I_CLK] –divide_by 2 [get_pins DF/QN]
+
+
+31
+Prepare Data: Timing constraint
+--set_input_delay
+set_input_dela y delay_value
+[-min]
+[-max]
+[-rise]
+[-fall]
+[-clock clock_name][-clock_fall][-add_delay]
+[-network_latency_included]
+[-source_latency_included]port_pin_listCLK1
+In1 .. In7
+In1
+DesignIn2
+:
+:
+set_input_delay 1  –clock  [get_clocks {CL K1}]  [getports {In1}]I_CLKdelay
+
+32
+set_output_delay delay_value
+[-min]
+[-max]
+[-rise]
+[-fall]
+[-clock clock_name]
+[-add_delay]
+[-network_latency_included]
+[-source_latency_included]
+port_pin_listCLK1
+Out1delayPrepare Data: Timing constraint
+--set_output_delay
+Out1
+Design:
+:CLK1
+CLK1
+set_output_delay 1  –clock  [get_clocks {CLK1}]  [getports {Out1}]
+
+33
+Prepare Data: Timing constraint
+--set_drive
+set_drive [-min]
+[-max]
+[-rise][-fall]
+drive_strength
+port_listIn1
+In2In1
+In25Ω
+3,2,4,3 
+rise_min, rise_max, fall_min, fall_max
+set_drive 1 [get_ports {In1}]
+
+34
+Prepare Data: Timing constraint
+--set_load
+set_load [-min]
+[-max][-pin_load]
+[-wire_load]
+load_valueport_listOut1
+Out25f
+4~5f
+set_load 1 [get_ports {Out1}]
+
+35
+Prepare Data: IO constraint
+Version: 1
+MicronPerUserUnit: value
+Pin: pinName side |corner
+Pad: padInstanceName side|corner [cellName]
+Offset: length
+Skip: length
+Spacing: length
+Keepclear: side offset1 offset2Create an I/O assignment file manualy using the following template:
+
+36
+Prepare Data: IO constraint cont.
+Version: 1 
+Pad: CORNER0 NW
+Pad: PAD_CLK        N
+Pad: PAD_HALT       N
+Pad: CORNER1        NE
+Pad: PAD_X1         W
+Pad: PAD_X2         W
+Pad: CORNER2        SW
+Pad: PAD_IOVDD1     SPad: PAD_IOVSS1     S
+Pad: CORNER3        SE
+Pad: PAD_VDD1     E
+Pad: PAD_VSS1     E
+S
+N
+E WPAD_CLK
+PAD_X1PAD_HALT
+PAD_X2PAD_IOVDD1PAD_IOVSS1PAD_VDD1PAD_VSS1CORNER0
+CORNER3 CORNER2CORNER1
+
+37
+Tips to Reduce the Power/Ground Bounce
+Don’t use stronger output buffers than what is necessary
+Use slew-rate controlled outputs
+Place power pad near the middle of the output buffer
+Place noise sensitive I/O pads away from SSO I/Os
+Place VDD and VSS pads next to clock input buffer
+Consider using double bonding on the same power pad to 
+reduce inductance
+
+38
+Cadence On-Line document
+unix% /usr/cadence/SOC/cur/tools/bin/cdsdoc &
+unix% /usr/cadence/IC/cur/tools/bin/cdsdoc &
+unix% /usr/cadence/LDV/cur/tools/bin/cdsdoc &
+…..
+html browser must be installed
+do not set the proxy in html browser
+
+
+39
+Getting Started
+Source the encounter environment:
+unix% source /usr/cadence/cic_setup/soc.csh
+Invoke soc encounter in 64 bit mode:
+unix% encounter -64
+Do notrun in background mode. Because the terminal become the 
+interface of command input while running soc encounter.
+The Encounter reads the following initialization files:
+¾$ENCOUNTER/etc/enc.tcl
+¾./enc.tcl
+¾./enc.pref.tcl
+Log file:
+¾encounter.log*
+¾encounter.cmd*
+
+40
+GUI
+display controldesign display area
+auto query
+cursor coordinatesdesign viewstool widgets
+name of 
+selected 
+objectmenus
+switch bar
+
+41
+Tool Wedgits
+Design Import
+Zoom
+In/OutFit
+Zoom
+SelectZoom
+Previous
+RedrawHierarchy
+Down/Up
+Undo/RedoCalculate 
+Fence 
+Density
+Design 
+BrowserAttribute
+Editor
+Summary ReportXwindow
+dump/undump
+
+42
+Design Views
+FloorplanView
+¾displays the hierarchical module and block 
+guides,connection flight lines and floorplan objects
+Amoeba View
+¾display the outline of modules after placement
+Placement View
+¾display the detailed placements of cells, blocks.
+
+43
+Display Control
+Select Bar
+
+44
+Common Used Bindkeys
+Removes all rulers EscRemoves the last ruler Deletepans design area in the 
+direction of the arrowArrowsZoom out Z Zoom in zFits display fEdit attribute qAction Key
+hierarchy down Hhierarchy up hView layer [0-9] 0-9editTrim Tpopup Edit epopup Delete dAction Key
+Looking for more bindkey:
+Design->Preference, Binding Key
+
+45
+Import Design
+99
+9
+9
+999Max Timing Libraries 
+¾containing worst-case conditions for 
+setup-time analysis
+Min Timing Libraries 
+¾containing best-case conditions for 
+hold-time analysis
+Common Timing Libraries 
+¾used in both setup and hold analysis
+IO Assignment File:
+¾get a IO assignment template:
+DesignÆSaveÆI/O File …
+9DesignÆDesign Import …
+
+46
+Import Design cont.
+Buffer Name/Footprint: 
+¾specifies the buffer cell family to be inserted or swapped. 
+¾required to run IPO and TD placement.
+Delay Name/Footprint:
+¾required to run a fix hold time violation
+Inverter Name/Footprint:
+¾required to run IPO and TD placement.
+Get footprint of library cells by:
+¾TimingÆReportÆCell FootprintFootprint Example:
+For Cells:
+BUFXL 
+BUFX1BUFX2BUFX3BUFX4
+BUFX8
+BUFX12
+BUFX16
+BUFX20
+Footprint : buf
+
+47
+Import Design -- Timing
+9Default Delay Pin Limit:
+¾Nets with terminal counts greater than 
+the specified value are assigned the default net delay and net load entries.
+Default Net Delay:
+¾Set the delay values for a net that 
+meets the pin limit default.
+Default Net Load:
+¾Set the load for a net that  meets the 
+pin limit default.
+Input Transition Delay:
+¾Set the Primary inputs and clock nets.
+
+48
+Import Design -- Power
+Specify the names of Power Nets and Ground Nets
+99
+
+49
+Global Net Connection
+9FloorplanÆGloval Net Connections …
+9
+
+50
+Specify Floorplan
+99
+9999
+99
+FloorplanÆSpecify Floorplan …
+
+51
+Specify Floorplan –Doube back rows
+Double-back rows:
+Row Spacing > 0
+Row Spacing = 0
+
+52
+Core Limit, I/O Limnt
+
+53
+Place Blocks
+FloorplanÆPlace Blocks/ModulesÆPlace…
+automatic place blocks ( blackboxes
+and partitions) and hard macros at the 
+top-level design.
+Block halo
+¾Specifies the minimum amount of 
+space around blocks that is preserved for routing.
+
+54
+Manually Place Block
+ Move/Resize/Reshape floorplan object.
+Use functions in : FloorplanÆEdit Floorplan to 
+edit floorplan.
+Set placement status of all pre-placed block to 
+preplaced in order to avoid these blocks be moved 
+by amoebaPlace later. 
+FloorplanÆEdit FloorplanÆSet Block Placement 
+Status…
+
+
+55
+Add Halo To Block
+Prevent the placement of blocks and standard cells in order to reduce 
+congestion around a block.FloorplanÆEdit Block Halo …
+9
+99
+9Top
+BottomLeft Right
+
+56
+Block Placement
+Flow step
+¾I/O pre-placed
+¾Run quick block placement
+¾Throw away standard cell 
+placement
+¾Manually fit blocks
+Block place issue
+¾power issue
+¾noise issue
+¾route issue
+
+57
+Block Placement
+Preserve enough power pad
+Create power rings around block
+Follow default routing direction rule
+Reserve a rounded core row area for placer
+Default directionblock
+
+58
+Power Planning: Add Rings
+FloorplanÆPower PlanningÆAddRings
+Use wire group to avoid
+slot DRC error 
+
+
+59
+Power Planning: Wire Group
+9Use wire group
+no interleaving
+9number of bits = 2 9Use wire group
+9interleaving
+9number of bits = 2 
+
+60
+Power Planning: Block Ring
+
+
+61
+Power Planning: Block Ring cont.
+
+
+62
+Power Planning: Add Stripes
+
+
+63
+Edit Route 
+Change layer
+Change widthDuplicate wire
+Split wire
+Merge wireTrim wire
+Delete wireClear DRC markersFix wire wider than max width
+
+64
+Edit Route cont.
+Add WireMove Wire
+Cut Wire
+Stretch Wire
+
+65
+Placement
+Prototyping : Runs quickly, but components may not be placed at legal 
+location.
+Timing Driven: 
+¾Build timing graph before place.
+¾meeting setup timing constraints
+with routability.
+¾Limited IPO by 
+upsizeing/downsizing instances.
+Ignore Scan Connection
+¾nets connected to either the
+scan-in or scan-out are ignored.
+Check placement after placed
+¾placeÆCheck PlacementPlaceÆPlace…
+9
+
+66
+Floorplan Purposes
+Develop early physical layout to ensure design objective can be 
+archived
+¾Minimum area for low cost
+¾Minimum congestion for design routable
+¾Estimate parasitic for delay calculation
+¾Analysis power for reliability
+gain early visibility into implementation issues
+
+67
+Guide , Region, Fence
+Placement constraint
+Create guide for timing issue
+A critical path should not through 
+two different modules
+The more region, the more 
+complicated floorplanning
+
+68
+Difference Floorplan
+Difference Performance
+
+69
+Wire Load After Placement
+Logical wire load after placement
+
+70
+Module Constraint
+Soft Guide
+Guide
+Region
+Fence
+Fence RegionGuide Soft Guide
+
+71
+Specifies a scan chain in a design. The actual tracing of the scan chain 
+is performed by the scanTrace or scanReorder command
+ftname
+¾The design input/output pin name
+instPinName
+¾The design instance input/output pin nameSpecify Scan Chain 
+encounter >  specifyScanChain scanChainName
+–start  {ftname | instPinName}
+–stop  {ftname | instPinName}
+
+72
+Scan Chain Reorder
+PlaceÆReorder Scan
+No Skip
+¾Buffers and inverters remain after the scan chain reorder
+Skip Buffer
+¾Ignores buffers in the scan chain. 
+Skit Two Pin Cell
+¾Ignores buffers and inverters in the scan chain
+
+73
+Clock Problem
+Clock problem
+¾Heavy clock net loading
+¾Long clock insertion delay
+¾Clock skew
+¾Skew across clocks
+¾Clock to signal coupling effect
+¾Clock is power hungry
+¾Electromigration on clock net
+Solutions of these problems may be conflict
+Clock is one of the most important treasure in a chip, do 
+not take it as other use. 
+
+74
+Clock Tree Topology
+
+75
+Synthesize Clock Tree
+Create Clock Tree Spec
+clock spec
+Specify Clock TreeModify
+Synthesis Clock Treenetlist
+synthesis report
+clock nets
+routing guide
+Display Clock Tree
+
+76
+Create Clock  Tree Spec.
+ClockÆCreate Clock Tree Spec
+9
+9
+9
+
+77
+CTS
+CTS traces the clock starting fr om a root pin, and stops at:
+¾A clock pin
+¾A D-input pin
+¾An instance without a timing arc
+¾A user-specified leaf pin or excluded pin
+Write a CTS spec. template:
+¾specifyClockTree -template
+
+78
+CTS spec.
+A CTS spec. contain the following information.
+¾Timing constraint file (optional)
+¾Naming attributes (optional)
+¾Macro model data (optional)
+¾Clock grouping data (optional)
+¾Attributes used by NanoRoute routing solution (optional)
+¾Requirement for manual CTS or utomatic,gated CTS
+
+79
+CTS spec. 
+--Naming Attributes Section 
+TimingConstraintFile filename
+¾define a timing constraint file for use during CTS
+NameDelimiter delimiter
+¾name delimiter used when inserting buffers and updating clock 
+root and net names.
+¾NameDelimiter #   Îcreate names clk##L3#I2
+¾default Îclk__L3_I2
+UseSingleDelim YES|NO
+¾YES Îclk_L3_I2
+¾NO  Îclk__L3_I2 (default)
+
+80
+CTS Spec.
+-- NanoRoute Attribute Section
+RouteTypeName name
+RouteTypeName CK1
+……
+END
+NonDefaultRule ruleName
+¾Specify LEF NONDEFAULTRULE to be used
+PreferredExtraSpace [0-3]
+¾add space around clock wires
+Shielding PGNetName
+¾Defines the power and ground net names
+
+81
+CTS Spec.
+-- Macro Model Data Section-- Clock Grouping Section
+MacroModel
+¾MacroModel port  R64x16/clk  90ps  80ps  90ps  80ps  17pf
+¾MacroModel pin  ram1/clk 90ps  80ps  90ps  80ps  17pf
+¾delay_and_capacitance_value:
+maxRise minRise maxFall minFall inputCap
+ClkGroup
+¾Specifies tow or more clock domains for which you want CTS 
+to balance the skew.
+¾ClkGroup
++clockRootPinName1+clockRootPinName2
+…..
+
+82
+CTS Spec.
+--Manually Define Clock Tree Topology
+ClockNetName netName
+LevelNumber number
+¾Specify the clock tree level number
+LevelSpec levelNumber numberOfBuffers bufferType
+¾levelNumber
+9Specify the level number in the clock tree
+¾numberOfBuffer
+9the total number of buffers CTS should allow on the specified level
+¾Example:
+LevelSpec 1 2 CLKBUFX2
+LevelSpec 2 2 CLKBUFX2
+End
+
+83
+CTS Spec.
+-- Automatic Gated CTS Section
+AutoCTSRootPin clockRootPinName
+MaxDelay number{ns|ps}
+MinDelay number{ns|ps}
+SinkMaxTran number{ns|ps}
+¾maximum input transition time for sinks(clock pins)
+BufMaxTran number{ns|ps}
+¾maximum input transition time for buffers (defalut 400)
+MaxSkew number{ns|ps}
+
+84
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+NoGating {rising|falling|NO}
+¾rising : stops tracing through a gate(inclu de buffers and inverters) and 
+treats the gate as a rising-edge-triggered flip-flop clock pin.
+¾falling : stops tracing through a gate(inclu de buffers and inverters) and 
+treats the gate as a falling-edge-triggered flip-flop clock pin.
+¾No: Allows CTS to trace through clock gating logic. (default)
+AddDriverCell driver_cell_name
+¾Place a driver cell at the cloest possible 
+location to the clock port location .
+
+85
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+MaxDepth number
+RouteType routeTypeName
+RouteClkNet YES|NO
+¾Specifies whether CTS routes clock nets.
+PostOpt YES|NO
+¾whether CTS resizes buffers of inverters , refines placement,and
+corrects routing for signal and clock wires.
+¾default YES
+Buffer cell1 cell2 cell3 …
+¾Specifies the names of buffer cells to use during CTS.
+
+86
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+LeafPin
++ pinName rising|falling
++……
+¾Mark the pin as a “leaf”pin for non-clock-type instances.
+¾LeafPin
++ instance1/A rising
++ instance2/A rising…… A
+ALeafPort
++ portName rising|faling
++……
+¾Mark the port as a “leaf”port for non-clock-type instances
+
+87
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+ExcludedPin
++ pinName
++ …..
+ExcludedPort
++ portName
++ ……
+¾Treats the port as a non-leaf port, and prevents tracing and skew 
+analysis of the pin.8
+
+88
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+ThroughPin
++ pinName
++ …..
+¾Traces through the pin, even if the pin is a clock pin
+PreservePin
++ inputPinName
++ …… .
+¾Preserve the netlist for the pin and pins below the pin in the 
+clock tree.Preserve
+
+89
+CTS Spec.
+-- Automatic Gated CTS Section cont.
+DefaultMaxCap capvalue
+¾CTS adheres to the following priority when using maximum 
+capacitance value:
+9MaxCap statements in the clock tree specification file
+9DefaultMaxCap statement in the clock tree specification file
+9Maximum capacitance values in the SDC file
+9maximum capacitance values in the .lib file
+MaxCap
++ bufferName1 capValue1{pf|ff}
++ bufferName2 capValue2{pf|ff}
++ …..
+¾Buffer should be inserted if the given capacitance value is exceeded
+
+90
+Synthesize Clock Tree
+ClockÆSynthesize Clock Tree
+Reconvergence clock
+Crossover clock
+
+91
+Clock Synthesis report
+Summary report and detail report
+¾number of sub trees
+¾rise/fall insertion delay
+¾trigger edge skew
+¾rise/fall skew
+¾buffer and clock pin transition time
+¾detailed delay ranges for all buffers add to clocks
+Clock nets
+¾Saves the generated clock nets
+¾used to guide clock net routing
+Clock routing guide
+¾Saves the clock tree routing data
+¾used as preroute guide while running Trial Route
+
+92
+Display Clock Tree
+ClockÆDisplayÆDisplay Clock Tree …
+
+93
+Display Clock Tree
+-- by level
+
+
+94
+Display Clock Tree
+--by phase delay
+
+
+95
+Clock Tree Browser
+ClockÆClock Tree Brower
+Display trig edge, rise/fall delay, rise/fall skew, input delay,
+input tran of each cell.
+Resize/Delete leaf cell or clock buffer
+Reconnect clock tree
+
+96
+In-Place Optimization
+IPO 
+¾setup time
+¾hold time
+¾DRV (Design 
+Rule Violation)
+TimingÆIn-Place Optimization …
+
+97
+Congestion Optimization
+Reduces congestion after placement in an iterative way.
+Parameters
+¾nrIterInCongOpt nrIter
+9Specifies the total number of iteration in congestion optimization. 
+(default 1)
+¾maxCPUTimeInCongOpt
+9specifies the maximum CPU time in congestion optimization,in hours.encounter >  congOpt
+[-nrIterInCongOpt nrIter ]
+[-maxCPUTimeInCongOpt time ]
+
+98
+Balance Slew
+Speeds up or slows down the transition time if it is greater 
+or less than the specified maximum transition time.
+Parameters
+¾selNetFile selNetFileName
+9Specifies th file that contains the hierarchical net names that are 
+excluded from the IPO pperation
+¾excNetFile excNetFileName
+9Specifies the file that contains the hierarchical net (path) names for 
+the IPO operations. Only these net names are considered.encounter >  balanceSlew
+[-selNetFile selNetFileName ]
+[-excNetFile excNetFileName ]
+
+99
+Useful Skew
+encounter >  setAnalysisMode -usefulSkew
+encounter >  skewClock
+encounter >  optCritPath
+
+
+100
+Trial Route
+perform quick routing for congestion and parasitics
+estimation
+Prototyping:
+¾Quickly to gauge the 
+feasibility of netlist.
+¾components in design might 
+no be routed at legal location
+
+101
+Trial Route Congestion Marker
+visually check the congestion 
+statistics.
+dump congestion area:
+¾dumpCongesArea -all  file_nameBLOCK
+V=25/20 H=16/18
+The vertical (V) overflow is 25/20 (25 tracks are required , but only 20 tracks are available) .
+The Horizontal (H) overflow is 16/18 (16 tracks are required , and18 tracks  are available) .
+
+102
+Trial Route Congestion Marker cont.
+Six or more track required  Grey to White 6 and higherFive more track required  Magenta 5Four more track required  Red 4Three more track required  Yellow 3Two more track required  Green 2One more track required  Blue 1Overflow Value Color Level
+
+103
+Timing Analysis
+No Async/Async:
+¾recovery, removal check
+No Skew/Skew:
+¾check with/without clock 
+skew constraint
+TimingÆSpecify Analysis ConditionÆSpecify RC Extraction Mode …
+TimingÆExtract RC …
+TimingÆTiming Analysis …
+
+104
+Slack Browser
+TimingÆTiming DebugÆSlack Browser …
+
+105
+Power Analysis
+TimingÆExtract RC …
+PowerÆEdit Pad Location …
+PowerÆEdit Net Toggle Probability …
+9
+999
+
+106
+Statistical Power Analysis
+analysis report:
+¾A power graph
+¾report contains 
+9average power usage
+9worst IR drop
+9worst EM violation
+¾instance power file
+¾instance voltage file
+¾boundary voltage file
+9
+9
+9PowerÆPower AnalysisÆStatistical …
+
+107
+Simlation-Based
+Power Analysis
+save netlist for simulation
+¾DesignÆSaveÆNetlist…
+simulation and dump vcd file.
+¾$dumpvars;
+¾$dumpfile( “wave.vcd ”);
+Input vcd file for power 
+analysis
+PowerÆPower AnalysisÆ
+Simulation-Based9
+99
+9
+9
+9
+
+108
+Display IR Drop
+PowerÆDisplayÆDisplay IR Drop …
+9
+9
+
+109
+Display Electron Migration
+PowerÆDisplayÆDisplay EM …
+9
+
+110
+SRoute
+Route Special Net (power/ground net)
+¾Block pins
+¾Pad pins
+¾Pad rings
+¾Standard cell pins
+¾Stripes (unconnected)
+
+
+111
+Add IO filler
+Connect io pad power bus by inserting IO filler. 
+Add from wider filler to narrower filler.
+ADD IO FILLERaddIoFiller –cell  PFILL  –prefix  IOFILLER
+addIoFiller –cell  PFILL_9  –prefix  IOFILLER
+addIoFiller –cell  PFILL_1  –prefix  IOFILLER
+addIoFiller –cell  PFILL_01  –prefix  IOFILLER  -fillAnyGap
+
+112
+Add IO filler cont.
+In order to avoid DRC error 
+¾The sequence of  placing fillers must be from wider fillers to 
+narrower ones.
+¾Only the smallest filler can use -fillAnyGap option.
+
+
+113
+NanoRoute
+RouteÆNanoRoute
+
+114
+NanoRoute Attributes
+RouteÆNanoRoute/Attributes
+
+115
+Crosstalk 
+Crosstalk problem are getting more serious in 0.25um and 
+below for:
+¾Smaller pitches
+¾Greater height/width ratio
+¾Higher design frequency
+
+116
+Crosstalk Problem
+Aggressor
+original signal
+impacted signalDelay problem
+Noise problem Aggressor
+original signal
+impacted signal
+
+117
+Crosstalk Prevention
+Placement solution
+¾Insert buffer in lines
+¾Upsize driver
+¾Congestion optimization
+Routing solution
+¾Limit length of parallel nets
+¾Wider routing grid
+¾Shield special netsAdd buffer
+Upsize
+
+118
+Antenna Effect
+In a chip manufacturing process, Metal is initially deposited 
+so it covers the entire chip. 
+Then, the unneeded portions of the metal are removed by 
+etching, typically in plasma(charged particles).
+The exposed metal collect charge from plasma and form 
+voltage potential.
+If the voltage potential across the gate oxide becomes large 
+enough, the current can damage the gate oxide.
+
+119
+Antenna Ratio
+++++++Plasma
+gate oxide polymetal1
+via1
+Antenna Ratio = Area of process antennas on a node 
+Area of gates to the node metal2
+via2metal2
+++++ +++Plasma
+
+120
+Antenna Problem Repair 
+Add jumper
+Add antenna cell (diode)
+Add buffer
+gate oxidepolymetal1 via1metal2
+
+121
+Add Core Filler
+Connect the NWELL/PWELL layer in core rows. 
+Insert Well contact.
+Add from wider filler to narrower filler.PlaceÆFillerÆAdd Filler …
+
+122
+Add bonding pads (stagger IO pads only)
+PIN
+Bonding matelLogic and driverLinear IO pad Stagger IO pad
+PR boundary
+Outer BondingInner BondingAbutted Stagger IO 
+
+123
+Add bonding pads (stagger IO pads only)
+For the limitation of bonding wire technique , the stagger IO 
+pads are used in order to reduce IO pad width.
+We have to add the bonding pads after APR is finished if 
+stagger IO pads is used. But SE does not provide a built-in 
+function for add bonding pads, CIC reaches this purpose by 
+the way of importing DEF.
+CIC provides a perl script to calculate the bonding pad 
+location. The full flow is described in next page
+
+124
+Add bonding pads flow (stagger IO pads only)
+A placed and routed
+design in encounterrouted.defrouted.def
+bondPads.ecobondPads.ecobondPads.cmdbondPads.cmd
+addbonding.pl routed.def
+(In unix terminal)Export DEF
+(In encounter)
+source bondPads.cmd
+(In encounter terminal)
+finishaddbonding.pladdbonding.pl
+ioPad.listioPad.list
+
+125
+Output Data
+Export GDS for DRC,LVS,LPE,and tape out.
+Export Netlist for LV S and simulation.
+Export DEF for reordered scan chain.DesignÆSaveÆGDS…
+DesignÆSave->Netlist …
+DesignÆSave->DEF
+
+Post-Layout Verification –
+DRC/ERC/LVS/LPEChapter2
+
+127
+Post-Layout Verification Overview
+Post-Layout Verification do the following things :
+¾DRC ( Design Rule Check )
+¾ERC (Electrical Rule Check )
+¾LVS (Layout versus Schematic )
+¾LPE/PRE (Layout Parasitic Extraction / Parasitic Resistance 
+Extraction) and Post-Layout Simulation.
+
+128
+Post-Layout Verification Overview cont.
+DRC
+LPE/PRE ERCLVS
+0 1 3 2zn i compare with
+zn ivdd!
+gnd!zn ivdd!
+gnd!
+zn iextractclk vdd!
+short
+
+129
+Post-Layout Verification Overview 
+Layout Database
+DRC
+ERC LVS LPE/PRESchematic Netlist
+Extract Devices
+Text and Graphical Error ReportsExtracted Netlist with 
+Parasitic Elements
+Post-Layout Simulationoptional
+
+130
+DRC flow
+Prepare Layout
+¾stream in gds2
+¾add power pad text 
+¾stream out gds2
+Prepare command file 
+run DRC 
+View DRC error (DRC summary/RVE)
+
+131
+Prepare Layout
+Stream In design
+Add power Text
+Stream OutDFII
+Library
+GDSIIGDSIIStream In core gds2
+Stream In IO gds2
+LEF in RAM lef
+
+132
+Prepare Layout: Stream In GDSII
+Require: 
+¾technology file
+¾display.drf
+File->import->stream
+9
+9
+9
+
+133
+Prepare Layout: Add Power Text
+Add power text for LVS and Nanosim
+For UMC18/artisan library 
+¾Add text DVDD for IO power pad
+¾Add text DGND for IO ground pad
+¾Add text VDD for core power pad
+¾Add text GND for core ground pad
+
+134
+Prepare Layout: Stream Out GDSII 
+File->Export->stream..
+9
+9
+9
+
+135
+Prepare command file
+Prepare DRC Command file:
+¾0.18 (CBDK018_UMC_Artisan) Calibre
+9180nm_layers.cal
+9G-DF-IXEMODE_RCMOS18-1.8V-3.3V-1P6M-MMC-Calibre-drc-2.2-p1
+
+136
+Prepare Calibre Command file
+Edit runset file
+LAYOUT PATH “CHIP.gds2”
+LAYOUT PRIMARY “CHIP”
+LAYOUT SYSTEM GDSII
+…
+…
+…
+DRC SELECT CHECK
+NW.W.1
+NW.W.2
+…
+DRC UNSELECT CHECK
+NW.S.1Y
+NW.S.2Y
+…
+DRC ICSTATION YES
+INCLUDE “Calibre-drc-cur”
+
+137
+Submit Calibre Job
+Submit Calibre Job
+¾calibre –drc umc18DRC.cal
+Result log
+¾CHIP.drc.summary (ASCII result)
+¾CHIP.drc.results (Graphic result)
+
+138
+Using Calibre RVE
+Add in .cdsinit
+setSkillPath( “.  ~/  /usr/memtor/Calibre_ss/c ur/shared/pkgs/icb/tools/queryskl ”)
+load(“calibre.skl ”)
+
+139
+Using Calibre RVE
+
+
+140
+Using Calibre RVE
+
+
+141
+LVS Overview
+a<0>
+a<1>a<2>
+a<3>
+a<4>a<5>b<0>
+b<1>b<2>
+b<3>
+b<4>b<5>gnd!
+GNDVDDVDD
+GNDclk rst VDD cin
+s<0> s<1>. . . . .sel GND
+Layout Data Schematic Netlist
+a<5:0>
+b<5:0>
+clk
+rstcinsels<5:0>
+carry
+
+142
+Initial Correspondence Points
+Initial correspondence points establish a starting place for 
+layout and schematic comparison.
+Create initial correspondence node pairs by
+¾adding text strings on layout database.
+¾all pins in the top of schematic netlist will be treated as an initial 
+corresponding node if calibre finds a text string in layout which matches the node name in schematic.
+a<0>
+b<0>. . .. . .VDD
+a<0>
+b<0>. . .
+initial corresponding 
+node pairsglobal pin : VDD and GND
+
+143
+Black-Box LVS
+Calibre black-box LVS
+¾One type of hierarchical LVS.
+¾Black-box LVS treats every library cell as a black box.
+¾Black-box LVS checks only the interconnections between library 
+cells in your design, but not cell inside.
+¾You need not know the detail layout of every library cells.
+¾Reduce CPU time.
+
+144
+Black-Box LVS vs. Transistor-Level LVS
+Transistor Level LVS
+i1VDD
+GNDz
+i2i1
+i2z
+Black-Box LVSvs.
+vs.i1
+i2zinv0d1nd02d1
+inv0d1 nd02d1
+i1
+i2VDD
+GNDz
+
+145
+LVS flow
+Prepare Layout
+¾The same as DRC Prepare Layout
+Prepare Netlist
+¾v2lvs 
+Prepare calibre command file
+run calibre LVS 
+View LVS error (LVS summary/RVE)
+
+146
+Prepare Netlist for Calibre LVS
+v2lvs –v CHIP.v –l umc18lvs.v –o CHIP.spi –s umc18lvs.spi –s1 VDD –s0 
+GND
+If a macro DRAM64x16 is used
+v2lvs –v CHIP.v –l umc18lvs.v –l DRAM64x16.v –o CHIP.spi –s 
+umc18lvs.spi –s DRAM64x16.spi –s1 VDD –s0 GNDCHIP.spiCHIP.spiv2lvsPrepare Netlist
+Verilog
+CHIP.vVerilog
+CHIP.vumc18lvs.vumc18lvs.v
+umc18lvs.spiumc18lvs.spi
+
+147
+CIC Supported Files (0.18)
+CIC supports the following files in our cell library design 
+kit.
+¾Calibre LVS runset file 
+umc18LVS.cal
+¾Calibre LVS rule file
+G-DF-MIXEDMODE_RFCMOS18-1.8V_3.3V-1P6M-MMC-
+CALIBRE-LVS-1.2-P3.txt
+¾Black-box LVS relative files
+9pseudo spice file
+umc18LVS.spi
+9pseudo verilog file
+umc18LVS.v
+
+148
+Black Box related file
+Pseudo spice file
+.GLOBAL VDD VSS
+.SUBCKT AN2D1 Z A1 A2 VDD GND
+.ENDS
+…
+Pseudo verilog file
+module AN2D1 (Z, A1, A2);
+output Z;
+input A1;
+input A2;
+endmodule
+…
+
+149
+Prepare command file for Calibre LVS
+Edit Calibre LVS runset
+LAYOUT PATH “CHIP.calibre.gds”
+LAYOUT PIMARY “CHIP”
+LAYOUT SYSTEM GDSII
+SOURCE PATH “CHIP.spi”
+SOURCE PRIMARY “CHIP”
+…
+…
+INCLUDE “/calibre/LVS/Calibre-lvs-cur”
+Edit Calibre LVS rule file…
+…
+LVS BOX PVSSC
+LVS BOX PVSSR
+LVS BOX DRAM64x4s
+
+150
+Submit Calibre LVS
+calibre –lvs–spice  layout.spi –hier –auto 
+umc18LVS.cal  > lvs.log
+layout verilog
+CHIP.spi layout.spiv2lvs extract
+
+151
+Check Calibre LVS Summary
+OVERALL COMPAISON RESULTS
+CELL SUMMARY
+INFORMATION AND WARNINGS
+Initial Correspondence Points
+
+152
+Check Calibre LVS Summary 
+OVERALL COMPAISON RESULTS
+OVERALL COMPARISON RESULTS
+#       ###################       _    _   
+#        #                              #       *    *   
+#     #          #      CORRECT          #       |     
+#  #           #                               #       \___/  
+#             ###################            
+
+153
+Check Calibre LVS Summary 
+CELL SUMMARY
+******************* **************** **************
+CELL  SUMMARY
+******************* **************** **************
+Result           Layout                        Source
+----------- ----------- --------------
+CORRECT         CHIP                          CHIP
+
+154
+Check Calibre LVS Summary 
+INFORMATION AND WARNINGS
+******************************************************************                                  
+INFORMATION AND WARNINGS
+******************************************************************
+Matched       Matched Unmatched    Unmatched Component
+Layout         Source             Layout            Source               Type
+----------- ----------- -------------- --------------- --------------
+Nets:              11525         11525 0                     0
+Instances:              1                  1                 0                    0       ADDFHX1
+54                54 0                    0       ADDFHX4   79                79 0                    0       ADDFX2
+542              542 0                    0       AND2X1  
+…… …… ..                    ..       ………… .
+8                  8           0                    0        XOR3X2
+----------- ----------- -------------- --------------- --------------
+Total Inst:      10682          10682 0                      0
+
+155
+Check Calibre LVS Summary 
+Initial Correspondence Points
+o Initial Correspondence Points:
+Nets:   DVDD VDD DGND GND I_X[2] I_X[3] I_X[4] 
+I_X[5] I_X[6] I_X[7] I_X[8]  I_X[9]  I_X[10] I_X[11] 
+O_SCAN_OUT O_Z[0] O_Z[1]  O_Z[2] O_Z[3] I_HALT 
+I_RESET_ I_DoDCT I_RamBistE I_CLK I_SCAN_IN 
+I_SCAN_EN I_X[0] O_Z[4] I_X[1] O_Z[5] O_Z[6] 
+O_Z[7]   O_Z[8] O_ Z[9] O_Z[10] O_Z[11]
+
+156
+Check Calibre LVS Log
+TEXT OBJECT FOR CONNECTIVITY EXTRACTION
+PORTS
+Extraction Errors and Warnings for cell “CHIP ”
+
+157
+Check Calibre LVS Log
+TEXT OBJECT FOR CONNECTIVITY EXTRACTION
+--------------------------------------------------------------------------------
+TEXT OBJECTS FOR CONNECTIVITY EXTRACTION               
+--------------------------------------------------------------------------------
+O_Z[0] (523.447,31.68) 105 CHIP         O_Z[1] (598.068,31.68) 105 CHIP
+O_Z[2] (821.931,31.68) 105 CHIP         O_Z[3] (896.553,31.68) 105 CHIP
+O_Z[4] (971.175,31.68) 105 CHIP         O_Z[5] (1164.455,372.964) 105 CHIP
+O_Z[6] (1164.455,446.966) 105 CHIP      O_Z[7] (1164.455,520.968) 105 CHIPO_Z[8] (1164.455,594.97) 105 CHIP       O_Z[9] (1164.455,668.972) 105 CHIP
+O_Z[10] (1164.455,742.974) 105 CHIP     O_Z[11] (1164.455,816.976) 105 CHIP
+……
+……
+
+158
+Check Calibre LVS Log
+PORTS
+--------------------------------------------------------------------------------
+PORTS         
+--------------------------------------------------------------------------------
+O_Z[0] (523.447,31.68) 105 CHIP         O_Z[1] (598.068,31.68) 105 CHIP
+O_Z[2] (821.931,31.68) 105 CHIP         O_Z[3] (896.553,31.68) 105 CHIP
+O_Z[4] (971.175,31.68) 105 CHIP         O_Z[5] (1164.455,372.964) 105 CHIP
+……
+……
+
+159
+Check Calibre LVS Log
+Extraction Errors and Warnings for cell “CHIP ”
+Extraction Errors and Warnings for cell "CHIP"
+----------------------------------------------
+WARNING:  Short circuit - D ifferent names on one net:
+Net Id:  18
+(1)  name  "GND"  at location  (330.301,216.95)  on layer  102 "M2_TEXT"
+(2)  name  "GND"  at location  (673.2,29.1)  on layer 101 "M1_TEXT"
+(3)  name  "VDD"  at location  (748.1,31.5)  on layer 101 "M1_TEXT"
+(4)  name  "VDD"  at location  (208.93,274.56)  on layer  101 "M1_TEXT"
+The name "VDD" was assigned to the net.
+
+Post-Layout Timing Analysis
+-- NanosimChapter3
+
+161
+What Introduce After Place&Route?
+Interconnection wire ’s parasitic capacitance.
+M1 to  substrate 
+capacitance
+M1 to  M1 
+capacitance
+M1 to  M2 
+capacitanceM1M2
+vdd!
+gnd!vdd!gnd!
+
+162
+What Introduce After Place&Route?
+Interconnection wires ’parasitic resistance.
+M1 parasitic resistance 
+M2 parasitic resistance VIA parasitic resistance 
+vdd!
+gnd!vdd!gnd!M1M2
+VIA
+
+163
+Pre-Layout And Post-Layout Design
+A pre-layout design (before P&R) and a post-layout design 
+(after P&R)pre-layout
+post-layout
+
+164
+Why Post-Layout Simulation?
+. . . .clock skew
+clk
+data
+. . .. . .critical path delay
+datacritical path delay
+
+165
+Post-layout Timing Analysis Flow
+Gate-level 
+Netlist
+Gate-level 
+Analysis
+Delay
+CalculationLayout
+Tr. Netlist
+RC Network
+Tr-level
+AnalysisRC NetworkExtraction
+Gate-level post-layout 
+timing analysisTr.-level post-layout 
+timing analysis
+
+166
+Transistor-level Post-layout Simulation
+layout
+netlist/parasitic
+extraction
+SPICE netlist
+Post-layout 
+simulationsimulation 
+pattern
+simulation 
+resultCalibre LPE/PRE
+Nanosim
+
+167
+What is Nanosim
+Nanosim is a transistor- level timing simulation tool 
+for digital and mixed signal CMOS and BiCMOS 
+designs.
+Nanosim handles voltage simulation and timing 
+check.
+Simulation is event driven, targeting between SPICE 
+( circuit simulator ) and Verilog ( logic simulator ).
+
+168
+Prepare for Post-Layout Simulation
+Apply for a CIC account 
+¾http://www.cic.org.tw ⇒¤u§@¯¸±b¸¹¥Ó½Ð .
+¾fill in your personal data and your request.
+Install identd program
+¾this program is used to identify yourself when you log into CIC ’s 
+account from remote machine.
+Put your DB file to CIC ’s account
+
+169
+Replace Layout / LPE
+Qentry
+–M {LPE}
+–tech {UMC18 | TSMC18 | TSMC25 | TSMC35}
+–f GDSII
+–T Top_cell_name
+–s Ram_spce_filename
+–t {ra1sd | ra1sh | ra2sd | ra2sh | rf2sh |
+t18ra1sh | t18ra2sh | t18rf1sh | t18rf2sh | t18rodsh|
+18ra1sh_1 | 18ra1sh_2 | 18ra2sh}
+–c {UMC18 | TSMC18 | TSMC25 | TSMC35}
+–i {UMC18 | TSMC18 | TSMC25 | TSMC35}–o Netlist_file_name
+Example:
+¾Qentry –M LPE – tech UMC18 –f CHIP.gds –T CHIP
+–s RAM1.spec –t 18ra2sh –s RAM2.spec –t 18ra1sh_1
+–s RAM3.spec –t 18ra1sh_2 –c UMC18 –i UMC18 –o CHIP.netlist
+Use Qstat to check the status of your job.
+The result is stored in “result_#” directory.
+
+170
+Replace/LPE
+INPUT
+¾gds2
+¾ram spec
+OUTPUT
+¾output netlist
+¾TOP_CELL.NAME
+¾nodename
+¾spice.header
+¾nanosim.run
+¾log files for strem in, stream out, lpe
+
+171
+Running Nanosim
+Qentry
+–M{ N A N O S I M }
+–n{ C H I P . i o }
+–nspice CHIP.netlist spice.header
+–nvec CHIP.vec
+–mT o p _ c e l l _ n a m e
+–c{ C H I P . c f g }
+–z {CHIP.tech.z}
+–o Output_file_name
+–out  fsdb
+–t Total_simulation_time
+Example:
+¾Qentry –M NANOSIM –nspice CHIP.netlist spice.header –nvec
+CHIP.vec –m CHIP –c CHIP.cfg –z CHIP.tech.z –o UMC18 –t 100
+Use Qstat to check the status of your job.
+The result is stored in “result_# ”directory.
+
+172
+Spice Header File
+Spice Header File ÆModify PVT
+¾.lib 'l18u18v.012' L18U_BJD
+¾.lib 'l18u18v.012' L18U18V_TT
+¾.lib 'l18u33v_g2.011' l18u33v_tt
+¾*epic tech="voltage 3.3“
+¾*epic tech="temperature 100"
+
+173
+Generate Nanosim Simulation Pattern
+type vec
+signal  CLOCK,START,IN[7:0]
+;    time      clock   start     in<7:0>radix              1       1          44
+io                 i       i          ii
+high 3.3low 0.0
+25          0       0          xx
+50          1       0          xx
+75          0       0          xx
+. . . . .Input simulation pattern --- vecformat
+
+174
+Generate Nanosim Simulation Pattern
+type nsvt
+signal  CLOCK,START,IN[7:0]
+;              clock   start     in[7:0]
+radix              1       1          44
+io                 i       i          ii
+period 25
+high 3.3
+low 0.0
+0       0          xx
+1       0          xx
+0       0          xx
+. . . . .Input simulation pattern --- nsvtformat
+
+175
+Generate Nanosim Simulation Pattern
+You can generate Nanosim simulation pattern from 
+Verilog-XL stimulus.
+integer outf;
+initial begin
+outf = $fopen("input.dat");
+. . . . .$fclose(outf);
+$finish;
+end
+always @(sys_clock or start or in)
+$fdisplay(outf,"%t %b %b %h ",$time,sys_clock,start,in);
+. . . . .Verilog test bench file
+
+176
+Nanosim Configuration File
+bus_notation [ : ]
+print_node_logic ADRS[0]
+print_node_logic CLKprint_node_logic DATA[0]
+. . . . . .
+report_node_power VDDset_node_gnd DGND
+set_node_gnd GND
+set_node_v DVDD 3.3
+set_node_v VDD 1.8Example Nanosim_configuration file
+ADRS[0]
+ADRS[1]
+. . . . . .
+CLK
+DATA[0]
+. . . . . .nodename file
+
+177
+View Simulation Result --- nWave
+NOVAS nWave
+¾a waveform viewer which support Timemill output waveform 
+format.
+Environment setup
+unix% source / usr/debussy/CIC/debussy.csh
+Starting nWave
+unix% nWave &
+
+178
+Load Simulation Result --- nWave
+
+
+179
+Select Signals --- nWave
+Signals ⇒Get Signals ...
+
+
+180
+Check Simulation Result --- nWave
+
+
+181
+Power Analysis Result
+The power analysis result is stored in Nanosim simulation 
+log (xxx.log ) file
+. . . . . .
+Current information calculated over the intervals:
+0.00000e+00 - 1.00010e+03 ns
+Node: VDD
+Average current     : -3.5335 5e+05 uA
+RMS current         :  3.53388e+05 uA
+Current peak #1     : -4.5406 1e+05 uA at   6. 78400e+02 ns
+Current peak #2     : -4.3497 3e+05 uA at   4. 00000e-01 ns
+Current peak #3     : -3.8804 8e+05 uA at   2. 59000e+01 ns
+Current peak #4     : -3.8728 0e+05 uA at   1. 27500e+02 ns
+Current peak #5     : -3.8430 2e+05 uA at   5. 77800e+02 ns
+. . . . . .

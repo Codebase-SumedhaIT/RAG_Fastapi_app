@@ -1,0 +1,760 @@
+IC Package Design
+Presented by
+Oommen Mathews
+©Wipro Technologies - Wipro Confidential
+
+Wipro Confidential 1/03/2007 - page 2Pre-requisites
+Familiar with PCB/VLSI Layout concepts
+Familiar with IC Packaging concepts
+Agenda
+Name of the course: IC Package Design
+Duration: 3 hours
+Topic - IC Package Design Flow
+References
+"ASIC Packaging Guidebook" fr om THOSHIBA Corporation
+"Microelectronics System Pa ckaging" from IISc Bangalore
+"ASIC Packaging" by Sanjay Dandia
+http://www.amkor.com/Products/all _datasheets (Packaging Datasheets)
+"Design Guidelines for LTCC" from Kyocera CorporationIC Package Design
+
+Wipro Confidential 1/03/2007 - page 3IC Package Design - Introduction
+Purpose of Semi-Conductor Packaging
+The purpose of IC packaging is to protect the silicon chip from  outside environment 
+without sacrificing the chip performance.
+Package – Major Functions
+Protection (Mechanical, Chemical, and Electromagnetic)
+Enabling electrical connectivity
+Heat dissipation
+Space transformer
+Improve handling
+
+Wipro Confidential 1/03/2007 - page 4IC Package Design – Normal Considerations
+Package - Normal consideration
+Cost
+Physical attributes (Form fa ctor, Routing density, etc.)
+IC-Package interface (Pad pi tch, Pad placement, etc.)
+Package to PCB interface (Pinout, Routing etc.)
+Power delivery and dissipation
+Signal Integrity
+Thermal Design
+Mechanical Integrity (Crackin g, Shock, Bending, etc.)
+Manufacturability, Reliability, Testing, Handling, etc. 
+Generic / Open tool package
+Package is tooled before the die
+Select proper packageIC-Package interf ace (Pad pitch, Pad placement, etc.)
+Custom package
+Package is tooled with the die
+Optimum performance
+
+Wipro Confidential 1/03/2007 - page 5Package Physical Parameters
+Substrate Material Ceramic Organic No Substrate
+Die-Attach Cavity-up Cavity-down Stacked
+Die-Package Bonding Wire-bond TAB Flip-chip
+Encapsulation Hermetic Non-Hermetic
+Package-PCB Attach Leads/Pins Balls No Leads
+Thermal Management Heat Spreader Thermal Vias
+Package Size Large Small/Thin Chip Scale
+
+
+Wipro Confidential 1/03/2007 - page 6Tools Usage
+Primary Tools (Cadence)
+Allegro Package Designer (APD) – 6xx
+Allegro Package SI (APSI) – 6xx
+Thermal Simulation (Flomerics)
+Flotherm & Flopack
+Tool selection depends on client requirements.
+
+Wipro Confidential 1/03/2007 - page 7Wipro – IC Package Design Flow
+6) Die to Package
+Bonding
+4) Die/ Package
+Placement
+10) Design
+Documentation
+2) Input/
+Set-up Data
+3) Generate
+Symbols
+1) Identify
+Package
+9) Design
+Verification
+11) Output
+Generation
+5) I/O
+Mapping
+7) Package 
+Substrate RoutingConcurrent 
+Customer Review
+8) Package
+Analysis
+12) Fabrication & Chip Assembly
+
+Wipro Confidential 1/03/2007 - page 81) Identify Packages
+Check different package options for the Die based on:
+Operating frequency, Thermal spec, Size limitation, End usage, Cost, etc.
+Select the optimal packages
+From client’s list 
+Based on PCB manufa cturers’ constraints
+Single Die can have multiple packages 
+For example:
+Application Specific Standard Products 
+Memory chips, FPGAs, CPLDs, etc.
+
+Wipro Confidential 1/03/2007 - page 9Discrete Packages
+Dual Packages
+Quad Packages1) IC Package Types (General)
+DIP
+ SOPSOT
+TSSOP
+ SOJ
+ SSOP
+PLCC QFP
+ QFN
+ LCC
+TO-252
+ SC-62 TO-3 TO-46 TO-263
+SOIC
+
+Wipro Confidential 1/03/2007 - page 101) IC Package Types (General)
+Grid Array Packages
+Chip Scale Packages
+PGA BGA
+CSP WLP
+LGA
+
+
+Wipro Confidential 1/03/2007 - page 111) IC Package Types (General)
+Package on Package
+Chip on Chip
+Chip on Board or
+Direct Chip Attachment
+
+
+Wipro Confidential 1/03/2007 - page 121) IC Package Types (MCM / MCP)
+MCM / MCP
+A Multi-Chip Module or MCM is a specialized 
+electronic package where multiple Integrated 
+Circuits (ICs), semiconductor dies or other modules 
+are packaged in such a way as to facilitate their use
+as a single IC.
+Different Type of MCM
+MCM-L - laminated MCM. The substrate is  a multi-layer laminated PCB (Printed 
+circuit board). 
+MCM-D - deposited MCM. The modules are deposited on the base substrate using 
+thin film technology. 
+MCM-C - ceramic substrate MCMs.
+MCM-S - uses a silicon substrate with tracks  created in the silicon like regular ICs 
+
+Wipro Confidential 1/03/2007 - page 131) IC Package Types (SiP / SoP)
+SiP / SoP
+The term “System in a Package” or SiP refers to 
+a semiconductor device that incorporates multiple
+chips and passives that make up a complete
+electronic system into a single package.
+Difference between SiP and SoC
+SiP - Combines multiple chips and passives and encases them in to one package.
+SoC - Builds multiple function-circuits on one chip.
+
+
+Wipro Confidential 1/03/2007 - page 141) IC Package Types (Embedded Circuitry)
+Packages with Embedded Circuitry (Active Packages)
+LTCC WLAN module with  Embedded Circuitry
+
+
+Wipro Confidential 1/03/2007 - page 151) Identify Packages
+Package selection by Frequency
+Flat Packs for freq. < 200 MHz
+QFN for freq < 300 MHz
+Wire Bond BGA for freq < 500 MHz
+Flip-chip for freq > 500 MHz
+Package selection by Power Dissipation
+BGA, QFP for power < 2.5 W
+Heat slug, Unique required for power < 5 W
+Heat Slug/ Heat spreader/ Thermally enhanced BGA required for power > 5W
+Heat Sink/ Heat spreader/ Heat coo ling (recommended) for power > 12W/18 W
+AC/Fans required for power > 25 W
+
+Wipro Confidential 1/03/2007 - page 161) Identify Packages
+Package selection by Pin count
+Leads <25: SOP preferred
+Leads <50:  TSOP, QFN are preferred
+Other supported packages - QFP, WB BGA
+Leads <100: QFN preferred. 
+Other supported packages - T SOP, QFP, WB BGA
+Leads <200: WB BGA preferred. 
+Other supported packages – QFN, QFP
+Leads >200 and <800: Wire bond BGA preferred
+Leads >800: Flip chip BGA
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 172) Input/ Set-up Data
+Package design is driven by IC Design and PCB design 
+requirements.
+IC
+Design
+IC Package
+Design
+PCB
+Design
+Package
+Foundry
+
+
+Wipro Confidential 1/03/2007 - page 182) Input/ Set-up Data (IC design team)
+IC design team
+I/O Netlist
+I/O Pad co-ordinates and pad opening
+Number of power and ground pins
+Die size & logo
+DEF (Die Exchange Format) data
+RLC targets for the output and power pads
+Signal types and Constraints  - specification  like Frequency, Power, Critical signals, 
+etc.
+
+Wipro Confidential 1/03/2007 - page 192) Input/ Set-up Data (IC design team)
+Optimized Die I/O placement
+Placement information of Power/GND and Signal I/Os info
+In case of Core Limited I/O; consid er options like Circuit Under Pad (CUP)
+In case of Pad Limited I/O; consider options like Flip Chip
+Core Limited I/O Pad Limited I/O
+
+Wipro Confidential 1/03/2007 - page 202) Input/ Set-up Data (PCB design team)
+PCB design team
+Initial I/O assignment draft
+Package PCB routability data
+Power delivery and Pin mapping
+RLC parameters for input ports
+PCB constraints
+
+Wipro Confidential 1/03/2007 - page 212) Input/ Set-up Data (Package Foundry)
+Package Foundry
+Package availability
+Package drawing and datasheet
+IO placement guidelines specific to package
+Package/Substrate design rules
+Assembly tooling
+Panelization details
+Die design guidelines (w ith respect to package)
+Min/Max die size
+I/O bond pad pitch
+I/O bond pad location (two side, four side, etc.)
+I/O bond pad size opening
+Minimum scribe street width
+Die thickness
+Min/Max bond wire length
+Min/Max Bond wire angle
+
+
+Wipro Confidential 1/03/2007 - page 222) Input/ Set-up Data (Summary-Package Design)
+Die size and Pad locations (X-Y co-ordinates)
+Package mechanical drawing and dimensions
+Pin mapping details/ Signal name list (Die - Package)
+Signal types  and Constraints
+Example: Differential, Clocks, Controlled Impedance etc.
+Wire bonding/ Substrate/ Lead design rules
+Spacing rules
+Layer stack-up
+Padstack (Die/ Wirebond/ Package/ Via) dimensions
+Electrical models/ Specifications
+Thermal/ Material data
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 233) Generate Symbols
+Create Padstacks
+A padstack is a collection of info rmation that is associated 
+with a pin or a via, used to model different types of pads.
+Padstacks – different types
+Through Hole
+Surface Mount 
+Vias
+Define die symbol
+Define package symbol
+Define passive component symbols
+Mechanical symbols like Plating Bar, Holes, etc.
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 24
+4) Die/ Package Placement
+Die-to-Die Placement
+Reduce criss-cross
+Die-to-Package Placement
+Right orientation and alignment
+Routabilitiy
+Place in package geometric centre for single die
+Distribute and try to align with the sides in case of multiple dies
+Passive Placement
+Distribute the passives according to the 
+requirement
+
+
+Wipro Confidential 1/03/2007 - page 254) Die/ Package Placement
+Die-to-Package Placement
+Some Default 
+Die-Package Orientation
+
+Wipro Confidential 1/03/2007 - page 26Die Attach
+Die Attach (also known as Die Mount or Di e Bond) is the process of attaching the 
+silicon chip to the die pad or  die cavity of the support st ructure (e.g the leadframe) of 
+the semiconductor package. 
+Die Attach – Cavity Up
+Die Attach – Cavity Down
+Die Attach – Stacked
+4) Die/ Package Placement - Die Attach
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 27
+5) I/O Mapping
+Map the connectivity
+Mapping the connectivity from the Die to the Package pins
+Should keep in mind
+Frequency of I/O signals
+PCB Routability/ Trace length, RLCs, etc.
+Define connectivity automatically/manually
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 286) Die to Package Bonding
+What is Die to Package Bonding?
+Die bonding is the process of attaching die to the package. This will provide the 
+electrical connectivity to the die from the package.
+Normal Die to Package Bonding
+Wire Bonding
+Tape Automated Bonding
+Flipchip Bonding
+
+Wipro Confidential 1/03/2007 - page 296) Die to Package Bonding - Wire Bonding
+Wire Bonding
+Wire bonding is the process of providing electrical connection between the silicon 
+chip and the external leads/bond pads of th e semiconductor package using very fine 
+bonding wires.
+Gold/Aluminium/Copper wire is used to make a connection 
+Thermo-compression or thermosonic energy to make a connection
+Design related critical features :
+Pad size, Pad pitch
+Pad location with resp ect to the bond finger
+Assembly related critical parameters
+Wire angle & length - Wire crossing
+Wire to wire space - Wire exit angle
+
+
+Wipro Confidential 1/03/2007 - page 306) Die to Package Bonding - Wire Bonding
+Wire Bond – Data Required
+Bondpad dimensions and bondwire connect location
+Bondpad X or Y location (only for orthogonal)
+Bondpad-to-bondpad spacing
+Min and max wirebond length
+Max wirebond angle (only for radial)
+Different types of Bond Pad arrangements
+InlineStaggered
+
+Wipro Confidential 1/03/2007 - page 316) Different Types of Wire Bonding
+Multi Tier Bonding
+Die to Die Bonding
+Multi Chip Bonding
+Multiple Wire
+in Same Bond Pad
+
+Wipro Confidential 1/03/2007 - page 326) Die to Package Bonding - Wire Bonding
+Wire Bonding
+Advantages :
+Enormous installed capacity
+Flexible process : multiple die / package
+Dis-advantages :
+Cost is a function of number of bonds
+Wire inductance
+Trend :
+Pad pitch shrink is possible with new technology
+Multiple rails to bond on a substrate
+
+Wipro Confidential 1/03/2007 - page 336) Die to Package Bonding - TAB
+Tape Automated Bonding (TAB)
+TAB is the process of mounting a die on a flexible tape made of polymer material, 
+such as polyimide. This can be mounted to a package substrate or PCB.
+Thermo-compression bonding
+Patterned metal on polymer tape is bonded
+Advantages :
+Gang bonding instead of single
+Better electrical performance than a wire bond
+Dis-advantages :
+Each silicon requires a new tape design
+Special metallurgy needed at the bond pad
+
+Wipro Confidential 1/03/2007 - page 346) Die to Package Bonding - TAB
+Tape Automated Bonding
+Inner Lead Bonding (ILB)
+The TAB bonds connecting the die and 
+the tape are known as inner lead bonds.
+Outer Lead Bonding (OLB)
+The TAB bonds connecting the tape to the package or to external circuits are known 
+as outer lead bonds.
+
+
+Wipro Confidential 1/03/2007 - page 356) Die to Package Bonding – Flip Chip
+Flip Chip Bonding
+It is an interconnect technology [C4 Bu mp (Controlled Collapse Chip Connection)]
+Can be offered in any type of pa ckage but it is most suited to BGA
+Assembly Process :
+Small bumps are grown on the die : Bumping
+Die is flipped and attached  to the substrate : Reflow
+Underfill to minimize CTE difference between the die and the substrate.
+C4 Bump in the Die
+
+Wipro Confidential 1/03/2007 - page 366) Die to Package Bonding – Flip Chip
+Flip Chip Bonding
+Advantages :
+Die shrink is possible co mpared to wire bond die
+Best electrical performance
+Allows for I/Os anywhere in the die
+Lower inductance power planes support high frequency designs 
+Supports higher pin counts  than wire-bond packages 
+Assembly cost independent of No of I/Os
+Dis-advantages :
+Requires technology deve lopment in several areas
+Required infrastructure is not there
+Cost is very high for low volume applications
+Expertise concentrated within certain companies
+Additional fab processes - R edistribution, Bumping
+
+Wipro Confidential 1/03/2007 - page 37
+6) Die to Package Bonding – Flip Chip (RDL)
+RDL (Re Distribution Layer)
+A redistribution layer (RDL) is a routing layer of conductive metal within an IC that 
+connects the die or solder bump to a connection point on an I/O driver.
+RDL in Flip-chip
+The RDL connects I/O Cells to the Bond Pad
+Normally it will be the top metal layer
+RDL in WLP
+The RDL connects I/O Cells to the Solder ball
+Can be done by the Die or Package Foundry
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 387) Package Substrate Routing
+APD
+Database
+Layer 
+Stack-up DRC/
+Constraints/
+Properties
+Assembly
+RulesVia &
+Fanout
+Critical
+Signal
+Routing Diff. Pair
+RoutingComplete
+Signal
+RoutingPost
+Route
+StepsClean up
+Auto
+RoutingConcurrent 
+Review and 
+CheckingSubstrate Routing – Flow Diagram
+
+Wipro Confidential 1/03/2007 - page 397) Package Substrate Routing
+Create power/ Ground planes/ Power rings
+Generate fanout/ offset vias
+Die-to-die routing
+Die-to-package routing
+Package-to-plating bar routing
+Generate radial routes
+Route automatically
+Spider Router
+Specctra Router
+Route manually
+
+Wipro Confidential 1/03/2007 - page 40
+7) Substrate Materials (Ceramic & Organic)
+Dielectric Materials
+Ceramic
+Thick-film ceramic 
+Thin-film ceramic 
+High-Temperature Co-fired Ceramic (HTCC) 
+Low-Temperature Co-fired Ceramic (LTCC)
+Organic
+BT (Bismaleimide-Triazine)
+FR-4
+Conductor Materials
+Gold, Silver, Copper, Aluminium, Tin/Lead, Nickel
+
+
+Wipro Confidential 1/03/2007 - page 417) Substrate Functions
+Main Functions
+Support die and components
+Insulate between tracks and layers
+Provide electrical interconnections
+Desired Functions
+Mechanically strong to support die and components
+Dissipate heat and have low thermal expansion
+Drill and Punch through
+Resist degradation by heat and process chemicals
+Should not absorb excessive moisture
+Low dielectric constant
+Dielectric should receive plating
+
+Wipro Confidential 1/03/2007 - page 427) Substrate Stack-up
+Stack-up
+Routability
+Power Planes
+Controlled Impedence
+Wire Bond
+ Flip Chip
+
+Wipro Confidential 1/03/2007 - page 437) Substrate Trace Structure
+Normal Substrate Trace Structures
+Microstrip & Stripline
+Single ended tracks
+Differential tracks
+
+
+Wipro Confidential 1/03/2007 - page 447) Substrate Design Rules (Sample)
+
+
+Wipro Confidential 1/03/2007 - page 457) Substrate Design Rules (Sample) Cont.
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 468) Package Analysis - Electrical Analysis
+Electrical Analysis
+RLC 3-D extraction
+Substrate impedance analysis
+Propagation delay report for Netlist
+Pre/Post route SPICE/IBIS 3-D model simulations on Nets
+3D package modeling and IBIS model generation
+Cross talk, Reflection, Over/Under Shoot analysis
+Timing analysis 
+Power-Ground Bounce/SSN analysis
+Refer Package Analysis cour se material for details.
+
+Wipro Confidential 1/03/2007 - page 478) Package Analysis - Thermal Analysis
+Thermal Analysis
+Thermal modeling based on JEDEC test setup
+Thermal Resistance (Rjb, Rjc, Rja)
+Package Thermal Characterization
+Junction temperature
+Junction temperature reliability
+Junction temperat ure functionality
+Case temperature
+Board temperature
+Thermal Analysis (Impact on Package Design)
+Modify die placement in case of Multi Chip Module
+Add plane layers to the stackup
+Use alternative substrate materials
+Add thermal vias
+Add heat sinks
+Experiment with alternative environmental conditions
+Refer Package Analysis course material for details.
+
+Wipro Confidential 1/03/2007 - page 488) Package Analysis - Thermal Analysis
+Temperature Flow in a Package
+Rja = Rjc + Rca
+Package thermal performance is defined by Rja.
+Power = (Tj - Ta) / Rja
+where, Tj = Junction Temperature (ex. 110 deg C)Ta = Ambient Temperature (ex. 50 - 70 deg C)
+If Tj = 110, Ta = 50 & Rja = 15 ----> Power = 4 Watts
+Refer Package Analysis cou rse material for details.
+
+
+Wipro Confidential 1/03/2007 - page 498) Package Analysis
+Mechanical Analysis
+Stress Analysis
+Bending Analysis
+Mechanical Structural Analysis
+Mechanical Shock
+Vibration Analysis
+Moisture Sensitivity Characterization
+Drop Test
+Board Level Cyclic Bending Test, etc.
+Refer Package Analysis cou rse material for details .
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 509) Design Verification
+Check Physical Design Rules
+Check Electrical Rules
+Check Connectivity
+DFM/DFA Analysis
+Netlist with Property Output file Verification
+Component Compare
+LVS Comparison
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 5110) Design Documentation
+Create Plot/IPF Files
+Generate Reports
+Generate Dimensioning data
+Create Wire Bond Diagrams
+3-D Translation using MCAD Translators
+Back to Package Flow
+
+Wipro Confidential 1/03/2007 - page 5211) Output Generation
+Gerber and NC Drill Data
+ODB++ Data
+GDSII Stream Data
+DXF Data
+Wire Bond Diagrams/ Reports
+PCB Symbols 
+PCB Schematic and Layout
+.mcm file (APD Database)
+
+Wipro Confidential 1/03/2007 - page 5311) Wipro – Sample Designs
+20 – Pin SOP
+PBGA 352 Pin, 1.27 mm pitch
+
+
+Wipro Confidential 1/03/2007 - page 5411) Wipro – Sample Designs
+Substrate Routing Wire Bond Diagram
+672 – Pin PBGA
+Back to 
+Package Flow
+
+Wipro Confidential 1/03/2007 - page 5512) Fabrication & Chip Assembly
+Panelising Substrate
+The substrate has to be fabricated with the Panelising rule of the assembly house
+This will help in assembling the chip in the substrate w ith proper tooling
+
+
+Wipro Confidential 1/03/2007 - page 5612) Substrate Fabrication Flow (Ceramic)
+
+
+Wipro Confidential 1/03/2007 - page 5712) Typical Package Assembly Flow (BGA)
+Wafer Mount
+Wafer Saw
+Plasma Clean Substrate
+Die Attach
+Wire Bonding
+Protect Die (Encapsulant)
+Solder Ball Attach
+Reflow
+Cleaning
+Package Marking
+Electrical Test
+Packing (Drypack)Wire Bond BGA
+Wafer Mount
+Gold Bumping Wafer
+Wafer Saw
+TAB Bonding
+Protect Die (Encapsulant)
+Plate/Heat Spreader Attach
+Solder Ball Attach
+Reflow
+Cleaning
+Package Marking
+Electrical Test
+Packing (Drypack)TAB BGA
+Wafer Mount
+Solder Bumping Wafer
+Wafer Saw
+Flip Chip Bonding/Reflow
+Protect Die (Under Filling)
+Plate/Heat Spreader Attach
+Solder Ball Attach
+Reflow
+Cleaning
+Package Marking
+Electrical Test
+Packing (Drypack)Flip Chip BGA
+
+Wipro Confidential 1/03/2007 - page 5812) Some Fab and Assembly Process
+Wafer Backgrind
+It is the process of grinding  the backside of the wafer to  the correct wafer thickness 
+prior to assembly. It is also referred to as 'wafer thinning'.
+Die Preparation
+Die preparation is the process by which the wafer is processed into individual dice in 
+preparation for assembly.   Die preparation co nsists of two major steps, namely, wafer 
+mounting and wafer saw.
+Wafer Saw
+Wafer saw is the step that actually cuts the wafer into individual dice for assembly in IC 
+packages
+
+Wipro Confidential 1/03/2007 - page 5912) Encapsulation
+Encapsulation
+It is the process of covering the assemble d chip with a mold material for protection.
+Encapsulation – Types
+Hermetic
+Non-Hermetic
+Encapsulant Properties
+Adequate mechanical strength
+Adhesion to package components
+Manufacturing and environm ental chemical resistance
+Electrical resistance
+Matched CTE to interfaces
+High thermal and moisture resistance
+
+Wipro Confidential 1/03/2007 - page 6012) Encapsulation – Die Attach/Underfill/Mold
+Overmolding & Die attach in Wirebond Chips
+Die attach Epoxy normally conductive
+Overmolding & Under fill in Flipchip BGAs
+Underfill should be insulator
+Protection from shock and vibration
+Moisture control
+
+
+Wipro Confidential 1/03/2007 - page 6112) Encapsulation – Molded Underfill/Tooling
+Molded Underfill
+Overmold material itself using for underfill
+Molded Underfill Molded Underfill Tooling
+
+Wipro Confidential 1/03/2007 - page 62Package Related Failures
+Bond Lifting
+Bond lifting refers to any of severa l phenomena in which a wire bond 
+that connects the device to the ou tside world becomes detached from 
+its position, resulting in loss or  degradation of electrical and
+mechanical connection between th at bond and its bonding site.
+Bond Shorting
+Bond Shorting is the presence of an unintended electrical connection 
+between two bonds.
+Package Cracking
+Package cracking is the occurrence of  fracture(s) anywhere in or on 
+a semiconductor package.
+Cratering
+Cratering is a partial or total fracture  of the silicon material underneath 
+the bond pad.  Cratering is commonly due to excessive stresses on the 
+bond pads from a poorly set up wire-bonding machine.
+Die Lifting
+Die lifting is the dis-bonding or de tachment of the die from its die
+pad or die cavity. 
+
+
+Wipro Confidential 1/03/2007 - page 63Package Related Failures
+Contamination
+Contamination is the presence of a foreign material, whether attached
+or unattached, anywhere inside or external portions of the package
+and leads.
+Package Chip-outs
+Package chipping is a failure me chanism wherein a part or parts 
+of the package break away  from the package itself.
+Corrosion
+Corrosion refers to the corrosion of the metal areas on the surface 
+of the die or wire-bond or package leads. 
+Package De-lamination
+Package de-lamination refers to  the dis-bonding between a
+surface of the package and that of another material.
+Wire Depression
+Wire depression is a condition wher ein one or more wires of the 
+device are deformed or pressed downwards.  Wire depression is 
+caused by purely mechanical me ans, usually by mishandling. 
+
+
+Wipro Confidential 1/03/2007 - page 64Some Package Structures (sample)
+PLCC QFPQFN DIP SSOP
+BGA
+
+
+Wipro Confidential 1/03/2007 - page 65Eco Friendly Packaging
+Eco Friendly Packaging
+Eco packaging targets to use environmental friendly substances in the packaging 
+and assembly process. It also targets to limit the hazardous su bstance to a minimum 
+level in the packaging process.
+Pb Free
+For Pb free Pb must be reduced below a ce rtain level. In addition the package must 
+survive Pb free assembly processes.
+RoHS
+ROHS, which is the acronym for "Reduc tion of Hazardous Substances", is a 
+directive from the European Union (EU) that restricts the use of six substances 
+[Lead (Pb), Mercury (Hg), Cadmium (Cd), etc.] in new electrical and electronic 
+equipment that are placed on the market by July 1, 2006.
+Green Packaging
+The “Green” level packaging encompasses an even wider range of restrictions, and 
+the requirements vary from region to  region and customer to customer.
+
+Wipro Confidential 1/03/2007 - page 66Thank You …!
+Thank You …!IC Package Design
